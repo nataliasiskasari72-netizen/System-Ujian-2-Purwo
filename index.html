@@ -37,11 +37,36 @@ function renderTeks(t){
 // === 2. LOGIN ===
 function showLogin(){
   document.getElementById("app").innerHTML = `
-  <div class="card"><h2>Ujian SMP NEGERI 2 PURWO</h2>
-  <p class="small">Login Siswa</p>
-  <input id="nama" placeholder="Nama Lengkap">
+  <div class="card" style="text-align:center"><h2>Ujian SMP NEGERI 2 PURWO</h2>
+  <p class="small">Silakan pilih login</p>
+  <div style="display:flex;gap:8px">
+    <button onclick="showLoginSiswa()" style="background:#1a73e8">LOGIN SISWA</button>
+    <button onclick="showLoginGuru()" style="background:#188038">LOGIN GURU</button>
+  </div></div>
+  <div id="loginBox"></div>`;
+  showLoginSiswa();
+}
+function showLoginSiswa(){
+  document.getElementById("loginBox").innerHTML = `
+  <div class="card"><h3>Login Siswa</h3>
+  <input id="nama" placeholder="Nama Lengkap - Contoh: Budi Santoso">
   <select id="kelas"><option value="">Pilih Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select>
-  <button onclick="masuk()">MASUK</button></div>`;
+  <button onclick="masuk()">MASUK SEBAGAI SISWA</button></div>`;
+}
+function showLoginGuru(){
+  document.getElementById("loginBox").innerHTML = `
+  <div class="card"><h3>Login Guru</h3>
+  <input id="guruNama" placeholder="Nama Guru">
+  <input id="guruPass" type="password" placeholder="Password Guru (12345)">
+  <button onclick="masukGuru()">MASUK SEBAGAI GURU</button>
+  <p class="small">Password default: 12345 - Ganti di kode jika perlu</p></div>`;
+}
+function masukGuru(){
+  let p = document.getElementById("guruPass").value;
+  if(p=="12345"){
+    // Tampilkan portal guru sederhana
+    document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru</h3><p>Login guru berhasil.</p><p class="small">Untuk input soal & jadwal, buka Google Sheets langsung atau gunakan menu di versi lama.</p><button onclick="showLogin()">KEMBALI</button></div>`;
+  } else { alert("Password salah!"); }
 }
 function masuk(){
   let n=document.getElementById("nama").value.trim();
