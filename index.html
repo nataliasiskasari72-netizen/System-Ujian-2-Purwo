@@ -21,7 +21,7 @@ button:disabled{background:#999}
 <div id="app"></div>
 <script>
 // ===== GANTI INI SAJA =====
-const API_URL = "https://script.google.com/macros/s/AKfycbxSmRvL9hwuitmFgShmxX61vkVWei_pQhK9sXEWs8Ug9BeH2orBnxYOp3-NdYULXLy8PQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyKYE0gBaBH93jYCH1lItOg1TX9_ZCN5w-Bzze2X5h0Q27dbkEI4w-GZcnKqTgQTLosQA/exec";
 // ============================
 let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="", guruNama="Guru";
 
@@ -328,19 +328,35 @@ function filterNilai(){
 }
 function downloadExcel(){
   let data = getFilteredNilai();
-  if(data.length==0) return alert("Tidak ada data untuk di-download. Ubah filter ke Semua Mapel / Semua Kelas dulu.");
-  let csv = "Nama,Kelas,Mapel,Benar,Salah,Nilai,Waktu\n";
+  // Kalau filter kosong, pakai semua data
+  if(data.length==0 && (window.nilaiDB||[]).length>0){
+    alert("Filter tidak ada hasil, download semua data saja ya.");
+    data = window.nilaiDB;
+  }
+  if(data.length==0) return alert("Tidak ada data nilai! Cek: 1. Apps Script sudah di-deploy ulang? 2. Sudah ada siswa yang ujian? 3. Nama Sheet harus persis 'Nilai'");
+
+  // Buat CSV yang benar-benar bisa dibuka Excel (pakai ; biar tidak berantakan di Excel Indonesia)
+  let csv = "Nama;Kelas;Mapel;Benar;Salah;Nilai;Waktu\n";
   data.forEach(v=>{
-    csv += `"${v.nama}","${v.kelas}","${v.mapel}",${v.benar},${v.salah},${v.nilai},"${v.waktu}"\n`;
+    // Hilangkan koma / titik koma dari nama biar tidak pecah kolom
+    let nama = String(v.nama||"").replace(/;/g," ").replace(/,/g," ");
+    let waktu = String(v.waktu||"").replace(/;/g," ");
+    csv += nama + ";" + v.kelas + ";" + v.mapel + ";" + v.benar + ";" + v.salah + ";" + v.nilai + ";" + waktu + "\n";
   });
-  let blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+
+  // Paksa download sebagai .xls (Excel langsung buka, bukan JSON)
+  let blob = new Blob(["\ufeff"+csv], {type:"application/vnd.ms-excel;charset=utf-8;"});
+  let url = URL.createObjectURL(blob);
   let link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
+  link.href = url;
   let fMapel = document.getElementById("filterMapel")?.value || "SemuaMapel";
   let fKelas = document.getElementById("filterKelas")?.value || "SemuaKelas";
-  link.download = "Rekap_Nilai_"+fMapel+"_"+fKelas+".csv";
+  link.download = "Rekap_Nilai_"+fMapel+"_"+fKelas+".xls";
+  document.body.appendChild(link);
   link.click();
-  alert("File Excel (CSV) berhasil di-download! Buka di Excel / Google Sheets.");
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+  alert("Berhasil download Excel! File: Rekap_Nilai_"+fMapel+"_"+fKelas+".xls ("+data.length+" siswa)");
 }
 function copyRekap(){
   let data = getFilteredNilai();
