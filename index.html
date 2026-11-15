@@ -47,7 +47,7 @@ table{width:100%;border-collapse:collapse}th{background:#f8fafc;padding:10px;tex
 <div class="card"><h3>⚙️ Pengaturan Sekolah & Password</h3><label>Nama Sekolah</label><input id="inputNamaSekolah" placeholder="SMP NEGERI 1 YOGYAKARTA"><label>Link Logo Sekolah (URL Gambar)</label><input id="inputLogo" placeholder="https://.../logo.png atau kosongkan untuk emoji 🏫"><div class="grid2"><div><label>Password Guru Baru</label><input id="passBaru" placeholder="cth: smp123"></div><div><label>&nbsp;</label><button class="btn g" style="width:100%" onclick="simpanPengaturan()">💾 SIMPAN PENGATURAN</button></div></div><p style="font-size:12px;color:#94a3b8">Link guru: <b>?guru</b> di belakang link.</p></div></div></div>
 <p style="text-align:center;color:#cbd5e1;font-size:11px;cursor:pointer" id="footerSekolah" onclick="bukaGuruFooter()">SMP NEGERI 1 YOGYAKARTA • Ujian Online v6 - GITHUB + SHEETS</p>
 <script>
-const API_URL = "PASTE_LINK_WEB_APP_DISINI";
+const API_URL = "https://script.google.com/macros/s/AKfycbwGnqi9pfeD99LDLQ0NIfYFugf43nvtFv4fbXMn37wJLtu_SOZCV4jCCjjKHK74CYRX_A/exec";
 let NAMA_SEKOLAH = localStorage.getItem('nama_sekolah') || "SMP NEGERI 1 YOGYAKARTA";
 let LOGO_URL = localStorage.getItem('logo_sekolah') || "";
 let PASSWORD_GURU = localStorage.getItem('pass_guru') || "guru123";
