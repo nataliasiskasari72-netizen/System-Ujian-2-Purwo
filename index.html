@@ -37,7 +37,7 @@ button:active{transform:scale(.98)}
 <div class="top"><p>🏫 SMP NEGERI 2 PURWO</p><h1>Ujian Online</h1><p>Belajar • Ujian • Nilai Langsung</p></div>
 <div class="wrap"><div id="app"></div></div>
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxAMK8HvLfKkoJlwpMSJiEzgV4YpvO9qT7mP5B8-NFr8ui_G7YzpC0uHkCMuFEsTxQWKA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxESxZqnlDl9oODifmmgZPy87DRFrA4QTR49rYSvR7AxV521ZuWUKfOMEXegMrJhmtqKQ/exec";
 let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="", guruNama="Guru";
 // ===== 2 LEVEL AKSES =====
 let params = new URLSearchParams(window.location.search);
@@ -152,6 +152,13 @@ function cekWaktuKirim(){
     setTimeout(()=>{ if(!ujianTerkunci) kumpul(true); }, 1000);
     return;
   }
+
+    if(!waktuSelesaiUjian || isNaN(waktuSelesaiUjian.getTime())){
+    let el2 = document.getElementById("infoWaktuKirim");
+    if(el2) el2.innerHTML = `⏰ Jadwal tidak terbaca, tombol kirim akan aktif 10 menit terakhir.`;
+    return;
+  }
+  
   let bukaKirim = new Date(waktuSelesaiUjian.getTime() - 10*60*1000); // 10 menit terakhir
   let btn = document.getElementById("btnKumpul");
   if(now < bukaKirim){
@@ -205,9 +212,30 @@ async function mulaiUjian(mapel, kelasJadwal){
   let jadwal = jadwalDB.find(j=> j.mapel==mapel && kelasCocok(j.kelas));
   let now = new Date();
   if(jadwal && jadwal.tanggal && jadwal.jam){
-    let tgl = jadwal.tanggal; // yyyy-mm-dd
-    let jamMulai = jadwal.jam; // HH:MM
-    waktuMulaiUjian = new Date(tgl+"T"+jamMulai+":00");
+  let tglRaw = String(jadwal.tanggal||"").trim().substring(0,10);
+  let jamRaw = String(jadwal.jam||"").trim().substring(0,5);
+  // Kalau tanggal masih format Mon Nov 17... -> ubah manual
+  if(tglRaw.includes(" " ) || tglRaw.includes("Nov") || tglRaw.includes("Dec")){
+    let d = new Date(jadwal.tanggal);
+    if(!isNaN(d)) tglRaw = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  // Kalau jam format 07.30 -> ubah ke 07:30
+  jamRaw = jamRaw.replace(". ",":").replace(".",":");
+  // Kalau jam dari Sheets kebaca 0.3125 (format Excel) -> ubah ke jam
+  if(!isNaN(jadwal.jam) && String(jadwal.jam).includes(".")){
+    let totalMenit = Math.round(parseFloat(jadwal.jam)*24*60);
+    jamRaw = String(Math.floor(totalMenit/60)).padStart(2,"0")+":"+String(totalMenit%60).padStart(2,"0");
+  }
+  waktuMulaiUjian = new Date(tglRaw+"T"+jamRaw+":00");
+  let durasi = parseInt(jadwal.durasi||60);
+  if(isNaN(durasi)) durasi = 60;
+  waktuSelesaiUjian = new Date(waktuMulaiUjian.getTime() + durasi*60*1000);
+  // PENGAMAN: Kalau tanggal masih NaN, pakai 60 menit dari sekarang
+  if(isNaN(waktuSelesaiUjian.getTime())){
+    waktuMulaiUjian = new Date();
+    waktuSelesaiUjian = new Date(Date.now() + 60*60*1000);
+  }
+} else {
     let durasi = parseInt(jadwal.durasi||60);
     waktuSelesaiUjian = new Date(waktuMulaiUjian.getTime() + durasi*60*1000);
   } else {
