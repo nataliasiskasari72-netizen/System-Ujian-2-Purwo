@@ -64,7 +64,7 @@ function showLogin(){
 function showLoginGuru(){
   let judul = isAdminMode ? "Login Admin" : "Login Guru";
   let ket = isAdminMode ? "Halaman khusus Admin. Jangan dibagikan." : "Halaman khusus Guru. Jangan dibagikan ke siswa.";
-  let tombolGanti = isAdminMode ? `<p class="small" style="text-align:center"><span onclick="gantiPassword()" style="color:#f59e0b;text-decoration:underline;cursor:pointer;font-weight:700">🔑 Ganti Password Admin •</span></p>` : `<p class="small" style="text-align:center">Ganti password hanya bisa oleh Admin.</p>`;
+  let tombolGanti = isAdminMode ? `<p class="small" style="text-align:center"><span onclick="gantiPassword()" style="color:#f59e0b;text-decoration:underline;cursor:pointer;font-weight:700">🔑 Ganti Password Admin •</span><br><span onclick="resetPasswordAdmin()" style="color:#dc2626;text-decoration:underline;cursor:pointer">Lupa Password? Klik untuk Reset ke 12345</span></p>` : `<p class="small" style="text-align:center">Ganti password hanya bisa oleh Admin.<br><span onclick="resetPasswordAdmin()" style="color:#dc2626;text-decoration:underline;cursor:pointer">Lupa Password? Klik untuk Reset ke 12345</span></p>`;
   document.getElementById("app").innerHTML = `
   <div class="card"><div style="font-size:36px;text-align:center">${isAdminMode ? "🛡️" : "👩‍🏫"}</div><h3 style="text-align:center">${judul}</h3>
   <p class="small" style="text-align:center">${ket}</p>
@@ -101,6 +101,14 @@ function gantiPassword(){
   localStorage.setItem("passGuru", baru);
   alert("Password berhasil diganti! Mulai sekarang login guru & admin pakai password baru ini.");
 }
+
+function resetPasswordAdmin(){
+  if(!confirm("Reset password ke 12345?")) return;
+  localStorage.removeItem("passGuru");
+  alert("Password berhasil direset ke 12345! Silakan login lagi pakai 12345.");
+  window.location.reload();
+}
+  
 async function loadData(){
   document.getElementById("app").innerHTML="<div class='card' style='text-align:center'>⏳ Memuat soal...</div>";
   try{
