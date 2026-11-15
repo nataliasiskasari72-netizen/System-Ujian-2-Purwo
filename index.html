@@ -16,7 +16,7 @@ button{width:100%;padding:14px;border-radius:12px;border:none;margin:7px 0;font-
 .btn-green{background:#188038;color:#fff}.btn-orange{background:#f59e0b;color:#fff}.btn-gray{background:#f1f5f9;color:#475569}
 button:active{transform:scale(.98)}
 .badge{display:inline-block;background:#e0f2fe;color:#0369a1;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:800}
-.badge-green{background:#dcfce7;color:#166534}.badge-orange{background:#fef3c7;color:#92400e}
+.badge-green{background:#dcfce7;color:#166534}
 .small{font-size:13px;color:#64748b;line-height:1.5}
 .opt{border:1.5px solid #e2e8f0;border-radius:14px;padding:13px;margin:8px 0;cursor:pointer;display:flex;gap:10px;align-items:flex-start;background:#fff}
 .opt.active{border-color:#1a73e8;background:#eff6ff;box-shadow:0 4px 12px rgba(26,115,232,.12)}
@@ -30,18 +30,19 @@ button:active{transform:scale(.98)}
 .jadwal-card{background:#fff;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 4px 14px rgba(0,0,0,.06);border-left:5px solid #1a73e8}
 .stat{display:flex;gap:10px}.stat div{flex:1;background:#f8fafc;border-radius:14px;padding:12px;text-align:center}
 .stat b{font-size:20px;display:block}.stat span{font-size:12px;color:#64748b}
-.guru-link{font-size:12px;color:#94a3b8;text-align:center;margin-top:18px;cursor:pointer;text-decoration:underline}
 .nilai-row{border-bottom:1px dashed #e2e8f0;padding:10px 0;font-size:14px}
 .progress{height:8px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:8px 0}.progress div{height:100%;background:linear-gradient(90deg,#1a73e8,#0ea5e9);transition:.3s}
 </style></head>
 <body>
 <div class="top"><p>🏫 SMP NEGERI 2 PURWO</p><h1>Ujian Online</h1><p>Belajar • Ujian • Nilai Langsung</p></div>
-<div class="wrap"><div id="app"></div>
-<div class="guru-link" onclick="showLoginGuru()">Login Guru •</div>
-</div>
+<div class="wrap"><div id="app"></div></div>
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbyKYE0gBaBH93jYCH1lItOg1TX9_ZCN5w-Bzze2X5h0Q27dbkEI4w-GZcnKqTgQTLosQA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxAMK8HvLfKkoJlwpMSJiEzgV4YpvO9qT7mP5B8-NFr8ui_G7YzpC0uHkCMuFEsTxQWKA/exec";
 let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="", guruNama="Guru";
+// ===== 2 LEVEL AKSES =====
+let params = new URLSearchParams(window.location.search);
+let isAdminMode = params.has("admin");
+let isGuruMode = params.has("guru") || isAdminMode;
 function renderTeks(t){
   if(!t) return "";
   t = String(t).replace(/\[GAMBAR:\s*([^\]]+)\]/g, (m,id)=>{
@@ -50,7 +51,7 @@ function renderTeks(t){
   });
   return t;
 }
-// ===== LOGIN SISWA SAJA (TIDAK ADA TOMBOL GURU) =====
+// ===== LOGIN SISWA SAJA =====
 function showLogin(){
   document.getElementById("app").innerHTML = `
   <div class="card" style="text-align:center"><div style="font-size:42px">🎓</div><h3>Selamat Datang, Siswa!</h3><p class="small">Masukkan nama lengkap dan kelas untuk melihat jadwal ujian.</p>
@@ -61,13 +62,17 @@ function showLogin(){
   <div class="card"><h3>ℹ️ Cara Ujian</h3><p class="small">1. Masuk pakai nama & kelas<br>2. Pilih jadwal ujian<br>3. Jawab semua soal, lalu kumpulkan<br>4. Nilai PG langsung keluar</p></div>`;
 }
 function showLoginGuru(){
+  let judul = isAdminMode ? "Login Admin" : "Login Guru";
+  let ket = isAdminMode ? "Halaman khusus Admin. Jangan dibagikan." : "Halaman khusus Guru. Jangan dibagikan ke siswa.";
+  let tombolGanti = isAdminMode ? `<p class="small" style="text-align:center"><span onclick="gantiPassword()" style="color:#f59e0b;text-decoration:underline;cursor:pointer;font-weight:700">🔑 Ganti Password Admin •</span></p>` : `<p class="small" style="text-align:center">Ganti password hanya bisa oleh Admin.</p>`;
   document.getElementById("app").innerHTML = `
-  <div class="card"><div style="font-size:36px;text-align:center">👩‍🏫</div><h3 style="text-align:center">Login Guru</h3>
-  <input id="guruNama" placeholder="Nama Guru">
-  <input id="guruPass" type="password" placeholder="Password Guru">
-  <button class="btn-green" onclick="masukGuru()">MASUK SEBAGAI GURU</button>
-  <button class="btn-gray" onclick="showLogin()">← Kembali ke Login Siswa</button>
-  <p class="small" style="text-align:center">Password default awal: 12345<br>Setelah login bisa ganti di Portal Guru.</p></div>`;
+  <div class="card"><div style="font-size:36px;text-align:center">${isAdminMode ? "🛡️" : "👩‍🏫"}</div><h3 style="text-align:center">${judul}</h3>
+  <p class="small" style="text-align:center">${ket}</p>
+  <input id="guruNama" placeholder="Nama ${isAdminMode ? "Admin" : "Guru"}">
+  <input id="guruPass" type="password" placeholder="Password">
+  <button class="btn-green" onclick="masukGuru()">MASUK SEBAGAI ${isAdminMode ? "ADMIN" : "GURU"}</button>
+  <button class="btn-gray" onclick="window.location.href=window.location.pathname">← Kembali ke Login Siswa</button>
+  ${tombolGanti}</div>`;
 }
 function masuk(){
   let n=document.getElementById("nama").value.trim();
@@ -82,7 +87,9 @@ function masukGuru(){
   if(p!=passTersimpan) return alert("Password salah!");
   guruNama=n; showGuruPortal();
 }
+// ===== GANTI PASSWORD - HANYA ADMIN =====
 function gantiPassword(){
+  if(!isAdminMode) return alert("Hanya Admin yang bisa ganti password! Buka lewat link ?admin");
   let lama = prompt("Masukkan Password Lama:");
   if(!lama) return;
   let passTersimpan = localStorage.getItem("passGuru") || "12345";
@@ -92,7 +99,7 @@ function gantiPassword(){
   let konfirm = prompt("Ulangi Password Baru:");
   if(baru != konfirm) return alert("Password baru tidak sama!");
   localStorage.setItem("passGuru", baru);
-  alert("Password berhasil diganti!");
+  alert("Password berhasil diganti! Mulai sekarang login guru & admin pakai password baru ini.");
 }
 async function loadData(){
   document.getElementById("app").innerHTML="<div class='card' style='text-align:center'>⏳ Memuat soal...</div>";
@@ -193,7 +200,7 @@ async function kumpul(){
   }
   document.getElementById("app").innerHTML=`<div class="card" style="text-align:center"><div style="font-size:48px">🎉</div><h2>Ujian Selesai!</h2><p>Nama: ${siswa.nama} • Kelas: ${siswa.kelas}<br>Mapel: ${mapelAktif}</p><div style="background:#dcfce7;border-radius:16px;padding:16px;margin:12px 0"><span class="small">Nilai Pilihan Ganda</span><h1 style="margin:4px 0;font-size:44px;color:#166534">${h.nilai}</h1><span class="small">Soal Essay dinilai manual oleh guru</span></div><button class="btn-blue" onclick="showLogin()">KEMBALI KE BERANDA</button></div>`;
 }
-// ===== PORTAL GURU ELEGAN =====
+// ===== PORTAL GURU / ADMIN =====
 async function showGuruPortal(){
   document.getElementById("app").innerHTML = `<div class="card" style="text-align:center">⏳ Memuat Portal Guru...</div>`;
   try{ let r = await fetch(API_URL+"?action=getData"); let d = await r.json(); soalDB = d.soal||[]; jadwalDB = d.jadwal||[]; window.nilaiDB = d.nilai||[]; }catch(e){ window.nilaiDB = []; }
@@ -210,9 +217,11 @@ async function showGuruPortal(){
   let htmlJadwal = "";
   if(jadwalDB.length==0) htmlJadwal = `<p class="small">Belum ada jadwal.</p>`;
   jadwalDB.forEach((j,i)=>{ htmlJadwal += `<div style="border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin:8px 0"><b>📚 ${j.mapel}</b> - ${j.kelas}<br><span class="small">${j.tanggal} | ${j.jam} | ${j.durasi} menit | ${j.keterangan||""}</span></div>`; });
+  let zonaAdmin = isAdminMode ? `<div class="card" style="background:#fef2f2;border:1px solid #fecaca;margin:0"><h3 style="color:#b91c1c">🛡️ Zona Admin</h3><p class="small">Hati-hati! Tombol ini hanya untuk Admin.</p><button style="background:#dc2626;color:#fff" onclick="hapusSemuaNilai()">🗑️ HAPUS SEMUA NILAI</button><button style="background:#fff;color:#dc2626;border:1px solid #fecaca" onclick="hapusNilaiFilter()">🗑️ HAPUS NILAI YANG DIFILTER SAJA</button><p class="small">Hapus Semua = hapus semua mapel & kelas.<br>Hapus Filter = hapus sesuai pilihan Mapel / Kelas di atas.</p></div>` : ``;
   document.getElementById("app").innerHTML = `
-  <div class="card"><div style="display:flex;align-items:center;gap:12px"><div style="width:48px;height:48px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">👩‍🏫</div><div><b style="font-size:17px">Halo, ${guruNama}</b><br><span class="small">Portal Guru • SMP NEGERI 2 PURWO</span></div></div>
-  <div class="flex2"><button class="btn-orange" onclick="gantiPassword()">🔑 GANTI PASSWORD</button><button class="btn-gray" onclick="showLogin()">KELUAR</button></div></div>
+  <div class="card"><div style="display:flex;align-items:center;gap:12px"><div style="width:48px;height:48px;background:${isAdminMode?"#fee2e2":"#dcfce7"};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">${isAdminMode?"🛡️":"👩‍🏫"}</div><div><b style="font-size:17px">Halo, ${guruNama} ${isAdminMode?"(Admin)":"(Guru)"}</b><br><span class="small">Portal ${isAdminMode?"Admin":"Guru"} • SMP NEGERI 2 PURWO</span></div></div>
+  <div class="flex2"><button class="btn-gray" onclick="window.location.href=window.location.pathname">KELUAR</button></div></div>
+  ${zonaAdmin}
   <div class="card"><h3>📊 Rekap Nilai</h3><div class="stat"><div><b>${totalSiswa}</b><span>Sudah Ujian</span></div><div><b>${rata}</b><span>Rata-rata</span></div><div><b>${lulus}</b><span>Lulus ≥70</span></div></div>
   <div style="display:flex;gap:8px"><select id="filterMapel"><option value="">Semua Mapel</option><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select><select id="filterKelas"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select></div>
   <button class="btn-green" onclick="filterNilai()">🔍 TAMPILKAN / FILTER</button>
@@ -238,7 +247,24 @@ function getFilteredNilai(){ let m = document.getElementById("filterMapel")?.val
 function filterNilai(){ let data = getFilteredNilai(); let h = `<h4>Hasil Filter: ${data.length} siswa</h4>`; if(data.length==0) h += `<p class="small">Tidak ada data untuk filter ini.</p>`; data.slice(-50).reverse().forEach(v=>{ h += `<div class="nilai-row"><b>${v.nama}</b> - ${v.kelas} - ${v.mapel} | Benar:${v.benar} Salah:${v.salah} | <b>Nilai:${v.nilai}</b> | ${v.waktu}</div>`; }); document.getElementById("hasilFilter").innerHTML = h; }
 function downloadExcel(){ let data = getFilteredNilai(); if(data.length==0 && (window.nilaiDB||[]).length>0) data = window.nilaiDB; if(data.length==0) return alert("Tidak ada data nilai! Klik TAMPILKAN / FILTER dulu."); let csv = "Nama;Kelas;Mapel;Benar;Salah;Nilai;Waktu\n"; data.forEach(v=>{ let nama = String(v.nama||"").replace(/;/g," "); let waktu = String(v.waktu||"").replace(/;/g," "); csv += nama + ";" + v.kelas + ";" + v.mapel + ";" + v.benar + ";" + v.salah + ";" + v.nilai + ";" + waktu + "\n"; }); let blob = new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8;"}); let url = URL.createObjectURL(blob); let link = document.createElement("a"); link.href = url; let fMapel = document.getElementById("filterMapel")?.value || "SemuaMapel"; let fKelas = document.getElementById("filterKelas")?.value || "SemuaKelas"; link.download = "Rekap_Nilai_"+fMapel+"_"+fKelas+".csv"; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); alert("Berhasil! File .csv ter-download ("+data.length+" siswa)."); }
 function copyRekap(){ let data = getFilteredNilai(); if(data.length==0) return alert("Tidak ada data."); let txt = "REKAP NILAI - "+(document.getElementById("filterMapel")?.value||"Semua Mapel")+" - "+(document.getElementById("filterKelas")?.value||"Semua Kelas")+"\n"; txt += "Nama | Kelas | Mapel | Benar | Salah | Nilai\n"; data.forEach(v=>{ txt += `${v.nama} | ${v.kelas} | ${v.mapel} | ${v.benar} | ${v.salah} | ${v.nilai}\n`; }); navigator.clipboard.writeText(txt).then(()=>alert("Rekap berhasil di-copy!")); }
+// ===== HAPUS NILAI - HANYA ADMIN =====
+async function hapusSemuaNilai(){
+  if(!isAdminMode) return alert("Hanya Admin yang bisa hapus nilai! Buka lewat ?admin");
+  let ketik = prompt("KETIK: HAPUS untuk menghapus SEMUA nilai ("+(window.nilaiDB||[]).length+" siswa):");
+  if(ketik != "HAPUS") return alert("Dibatalkan. Kamu harus ketik HAPUS persis.");
+  if(!confirm("YAKIN hapus semua nilai? Tidak bisa dikembalikan!")) return;
+  try{ let r = await fetch(API_URL, {method:"POST", body: JSON.stringify({action:"hapusNilai", mode:"semua"})}); let d = await r.json(); if(d.success){ alert("Semua nilai berhasil dihapus!"); showGuruPortal(); } else alert("Gagal: "+(d.msg||"")); }catch(e){ alert("Gagal hapus. Pastikan Apps Script sudah di-Deploy ulang. Error: "+e.message); }
+}
+async function hapusNilaiFilter(){
+  if(!isAdminMode) return alert("Hanya Admin yang bisa hapus nilai! Buka lewat ?admin");
+  let m = document.getElementById("filterMapel")?.value || ""; let k = document.getElementById("filterKelas")?.value || "";
+  if(!m && !k) return alert("Pilih dulu Mapel / Kelas di atas! Misal: Mapel=Matematika, Kelas=7A, lalu klik HAPUS NILAI YANG DIFILTER.");
+  let ketik = prompt("KETIK: HAPUS untuk menghapus nilai Mapel="+(m||"Semua")+" Kelas="+(k||"Semua")+":");
+  if(ketik != "HAPUS") return alert("Dibatalkan.");
+  if(!confirm("Yakin hapus nilai filter ini?")) return;
+  try{ let r = await fetch(API_URL, {method:"POST", body: JSON.stringify({action:"hapusNilai", mode:"filter", mapel:m, kelas:k})}); let d = await r.json(); if(d.success){ alert("Nilai filter berhasil dihapus! Terhapus: "+d.terhapus+" siswa"); showGuruPortal(); } else alert("Gagal: "+(d.msg||"")); }catch(e){ alert("Gagal hapus. Deploy ulang Apps Script dulu. Error: "+e.message); }
+}
 async function tambahJadwal(){ let data = {action:"addJadwal", mapel:document.getElementById("jMapel").value, kelas:document.getElementById("jKelas").value, tanggal:document.getElementById("jTanggal").value, jam:document.getElementById("jJam").value, durasi:document.getElementById("jDurasi").value, keterangan:document.getElementById("jKet").value}; if(!data.tanggal) return alert("Isi tanggal dulu!"); try{ let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json(); if(d.success){ alert("Jadwal berhasil ditambah!"); showGuruPortal(); } else { alert("Gagal: "+(d.msg||"")); } }catch(e){ alert("Gagal simpan. Pastikan Apps Script sudah di-Deploy ulang. Error: "+e.message); } }
 async function tambahSoal(){ let data = {action:"addSoal", mapel:document.getElementById("sMapel").value, kelas:document.getElementById("sKelas").value, jenis:document.getElementById("sJenis").value, bab:document.getElementById("sBab").value, pertanyaan:document.getElementById("sTanya").value, A:document.getElementById("sA").value, B:document.getElementById("sB").value, C:document.getElementById("sC").value, D:document.getElementById("sD").value, kunci:document.getElementById("sKunci").value, bobot:10, guru:guruNama}; if(!data.pertanyaan) return alert("Isi pertanyaan dulu!"); try{ let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json(); if(d.success){ alert("Soal berhasil ditambah!"); showGuruPortal(); } else { alert("Gagal: "+(d.msg||"")); } }catch(e){ alert("Gagal simpan. Pastikan Apps Script sudah di-Deploy ulang. Error: "+e.message); } }
-showLogin();
+if(isGuruMode){ showLoginGuru(); }else{ showLogin(); }
 </script></body></html>
