@@ -138,11 +138,86 @@ function showJadwal(){
   h+=`<div class="card"><button class="btn-gray" onclick="showLogin()">KELUAR</button></div>`;
   document.getElementById("app").innerHTML=h;
 }
-function mulaiUjian(mapel, kelasJadwal){
-  mapelAktif=mapel;
+// ===== ANTI CURANG + BATAS WAKTU =====
+let pelanggaran = 0;
+let ujianTerkunci = false;
+let waktuMulaiUjian = 0, waktuSelesaiUjian = 0, timerInterval = null;
+function cekWaktuKirim(){
+  let now = new Date(); let sisa = Math.floor((waktuSelesaiUjian - now)/1000);
+  let el = document.getElementById("infoWaktuKirim");
+  if(!el) return;
+  if(now >= waktuSelesaiUjian){
+    clearInterval(timerInterval);
+    el.innerHTML = `<b style="color:#dc2626">⏰ WAKTU HABIS! Jawaban otomatis dikirim...</b>`;
+    setTimeout(()=>{ if(!ujianTerkunci) kumpul(true); }, 1000);
+    return;
+  }
+  let bukaKirim = new Date(waktuSelesaiUjian.getTime() - 10*60*1000); // 10 menit terakhir
+  let btn = document.getElementById("btnKumpul");
+  if(now < bukaKirim){
+    let sisaBuka = Math.floor((bukaKirim - now)/1000);
+    let jam = Math.floor(sisaBuka/3600), mnt = Math.floor((sisaBuka%3600)/60), dtk = sisaBuka%60;
+    if(btn){ btn.disabled = true; btn.style.opacity = "0.5"; btn.innerHTML = `🔒 TOMBOL KIRIM BUKA ${String(jam).padStart(2,"0")}:${String(mnt).padStart(2,"0")}:${String(dtk).padStart(2,"0")} LAGI`; }
+    let totalSisa = Math.floor(sisa/60); let totalJam = Math.floor(totalSisa/60); let totalMnt = totalSisa%60;
+    el.innerHTML = `⏰ Sisa ujian: <b>${totalJam} jam ${totalMnt} menit</b> • Tombol KIRIM aktif 10 menit terakhir, yaitu jam <b>${bukaKirim.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</b> - <b>${waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</b>`;
+  } else {
+    if(btn){ btn.disabled = false; btn.style.opacity = "1"; btn.innerHTML = `✅ KUMPULKAN JAWABAN (Sisa ${Math.floor(sisa/60)} menit)`; }
+    el.innerHTML = `<b style="color:#16a34a">🟢 TOMBOL KIRIM SUDAH AKTIF! Segera kumpulkan sebelum jam ${waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</b>`;
+  }
+}
+function pasangAntiCurang(){
+  pelanggaran = 0; ujianTerkunci = false;
+  document.removeEventListener("visibilitychange", handlePindah);
+  document.addEventListener("visibilitychange", handlePindah);
+  window.removeEventListener("blur", handlePindah);
+  window.addEventListener("blur", handlePindah);
+}
+function handlePindah(){
+  if(ujianTerkunci || !window.listSoal) return;
+  if(document.hidden || document.visibilityState === "hidden"){
+    pelanggaran++;
+    if(pelanggaran == 1) alert("⚠️ PERINGATAN 1/2\n\nKamu terdeteksi pindah jendela / membuka aplikasi lain!\n\nJangan pindah lagi! Kalau 2x lagi, ujian akan terkunci dan jawaban otomatis dikirim.");
+    else if(pelanggaran == 2) alert("⚠️ PERINGATAN 2/2 - TERAKHIR!\n\nIni peringatan terakhir!\n\nKalau kamu pindah lagi, ujian akan TERKUNCI dan jawaban langsung dikirim dengan nilai apa adanya.");
+    else if(pelanggaran >= 3){
+      ujianTerkunci = true;
+      alert("🚨 UJIAN TERKUNCI!\n\nKamu sudah 3x pindah jendela.\nJawaban akan dikirim otomatis sekarang dan kamu tidak bisa mengerjakan lagi.");
+      kumpul(true);
+    }
+  }
+}
+  
+async function mulaiUjian(mapel, kelasJadwal){
+  mapelAktif = mapel;
+  // CEK SUDAH MENGERJAKAN - dari server
+  document.getElementById("app").innerHTML = `<div class="card" style="text-align:center">⏳ Mengecek riwayat ujian...</div>`;
+  try{
+    let r = await fetch(API_URL+"?action=getData"); let d = await r.json();
+    let sudah = (d.nilai||[]).find(v => String(v.nama||"").trim().toLowerCase() == siswa.nama.trim().toLowerCase() && String(v.kelas||"").trim().toUpperCase() == siswa.kelas.trim().toUpperCase() && String(v.mapel||"").trim().toLowerCase() == mapel.trim().toLowerCase());
+    if(sudah){
+      document.getElementById("app").innerHTML = `<div class="card" style="text-align:center"><div style="font-size:48px">✅</div><h3>Kamu Sudah Mengerjakan!</h3><p>Nama: ${siswa.nama}<br>Kelas: ${siswa.kelas}<br>Mapel: ${mapel}<br>Nilai kamu: <b style="font-size:28px;color:#16a34a">${sudah.nilai}</b></p><p class="small">Ujian hanya bisa dikerjakan 1x. Hubungi guru jika ada kesalahan.</p><button class="btn-blue" onclick="showJadwal()">KEMBALI KE JADWAL</button></div>`;
+      return;
+    }
+    soalDB = d.soal||[]; jadwalDB = d.jadwal||[];
+  }catch(e){}
   let list = soalDB.filter(s=> s.mapel==mapel && kelasCocok(s.kelas));
   if(list.length==0) return alert("Belum ada soal untuk "+mapel);
-  jawaban={}; list = list.sort(()=>Math.random()-0.5); window.listSoal=list; renderSoal(0);
+  // HITUNG JAM SELESAI dari Jadwal
+  let jadwal = jadwalDB.find(j=> j.mapel==mapel && kelasCocok(j.kelas));
+  let now = new Date();
+  if(jadwal && jadwal.tanggal && jadwal.jam){
+    let tgl = jadwal.tanggal; // yyyy-mm-dd
+    let jamMulai = jadwal.jam; // HH:MM
+    waktuMulaiUjian = new Date(tgl+"T"+jamMulai+":00");
+    let durasi = parseInt(jadwal.durasi||60);
+    waktuSelesaiUjian = new Date(waktuMulaiUjian.getTime() + durasi*60*1000);
+  } else {
+    // Kalau jadwal tidak ketemu, default 60 menit dari sekarang
+    waktuMulaiUjian = now; waktuSelesaiUjian = new Date(now.getTime() + 60*60*1000);
+  }
+  // Kalau ujian belum waktunya / sudah lewat, tetap izinkan tapi kasih info
+  jawaban={}; list = list.sort(()=>Math.random()-0.5); window.listSoal=list;
+  pasangAntiCurang();
+  renderSoal(0);
 }
 function renderSoal(idx){
   let list=window.listSoal; let s=list[idx];
@@ -177,11 +252,12 @@ function renderSoal(idx){
   let nav = "";
   if(idx>0) nav+=`<button class="btn-gray" onclick="renderSoal(${idx-1})">⬅ SEBELUMNYA</button>`;
   if(idx<list.length-1) nav+=`<button class="btn-blue" onclick="renderSoal(${idx+1})">SELANJUTNYA ➜</button>`;
-  else nav+=`<button class="btn-green" onclick="kumpul()">✅ KUMPULKAN JAWABAN</button>`;
+else nav+=`<button id="btnKumpul" class="btn-green" onclick="kumpul()">✅ KUMPULKAN JAWABAN</button>`;
   document.getElementById("app").innerHTML = `
-  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><span class="badge">${labelJenis}</span><span class="small">Soal ${idx+1} / ${list.length}</span></div><div class="progress"><div style="width:${persen}%"></div></div>
-  <p class="small">${s.bab||""} • ${mapelAktif}</p><h3 style="line-height:1.5">${renderTeks(s.pertanyaan)}</h3>${body}</div>
-  <div class="card">${nav}<p class="small" style="text-align:center">Jawaban tersimpan otomatis. Jangan refresh saat ujian.</p></div>`;
+  <div class="card"><div id="infoWaktuKirim" class="small" style="text-align:center;background:#fefce8;padding:10px;border-radius:10px;margin-bottom:8px">⏰ Memuat jadwal kirim...</div>${nav}<p class="small" style="text-align:center">Jawaban tersimpan otomatis. Jangan pindah jendela / buka aplikasi lain. Pelanggaran ${pelanggaran}/2.</p></div>`;
+    if(timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(cekWaktuKirim, 1000);
+  cekWaktuKirim();
   window.scrollTo(0,0);
 }
 function pilihPG(i,h,el){ jawaban[i]=h; document.querySelectorAll(".opt").forEach(o=>o.classList.remove("active")); el.classList.add("active"); }
@@ -199,7 +275,17 @@ function hitungNilai(){
   });
   return {nilai: total>0?Math.round(benar/total*100):0, benar, total, detail};
 }
-async function kumpul(){
+async function kumpul(otomatis=false){
+  if(!otomatis && !confirm("Kumpulkan jawaban?")) return;
+  if(ujianTerkunci && !otomatis && pelanggaran>=3) return alert("Ujian sudah terkunci!");
+  if(!otomatis){
+    let now = new Date();
+    let bukaKirim = new Date(waktuSelesaiUjian.getTime() - 10*60*1000);
+    if(now < bukaKirim) return alert("Tombol kirim belum aktif!\\n\\nTombol kirim hanya aktif 10 menit terakhir, yaitu jam "+bukaKirim.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})+" - "+waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})+".\\n\\nSilakan periksa lagi jawabanmu sambil menunggu.");
+  }
+  if(timerInterval) clearInterval(timerInterval);
+  document.removeEventListener("visibilitychange", handlePindah);
+  window.removeEventListener("blur", handlePindah);
   if(!confirm("Kumpulkan jawaban?")) return;
   let h = hitungNilai();
   document.getElementById("app").innerHTML=`<div class="card" style="text-align:center"><div style="font-size:36px">⏳</div><h3>Mengirim jawaban...</h3><p class="small">Jangan tutup halaman ini.</p></div>`;
