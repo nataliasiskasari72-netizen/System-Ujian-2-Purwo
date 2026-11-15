@@ -15,18 +15,21 @@ button:disabled{background:#999}
 .small{font-size:13px;color:#666}
 .checkrow{display:flex;gap:8px;align-items:center;border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0}
 .checkrow.active{border-color:#1a73e8;background:#e8f0fe}
+.flex2{display:flex;gap:8px} .flex2 button{flex:1}
 </style></head>
 <body>
 <div id="app"></div>
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwGnqi9pfeD99LDLQ0NIfYFugf43nvtFv4fbXMn37wJLtu_SOZCV4jCCjjKHK74CYRX_A/exec"; // <-- GANTI INI SAJA, sisanya sama
-let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="";
+// ===== GANTI INI SAJA =====
+const API_URL = "https://script.google.com/macros/s/AKfycbz0hZK5mRTZKHmb0wH-b9b_l6frX4Jg2yzySz5kw3YyQiJqzIADgYttYlwIJAvQo4hFlg/exec";
+// ============================
+let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="", guruNama="Guru";
 
-// === 1. RENDER GAMBAR DARI DRIVE ===
+// ===== RENDER GAMBAR DARI DRIVE =====
+// Format di Sheets: [GAMBAR:ID_DRIVE] atau [GAMBAR:https://...jpg]
 function renderTeks(t){
   if(!t) return "";
-  // Format: [GAMBAR:ID_DRIVE] atau [GAMBAR:https://...]
-  t = t.replace(/\[GAMBAR:\s*([^\]]+)\]/g, (m, id)=>{
+  t = String(t).replace(/\[GAMBAR:\s*([^\]]+)\]/g, (m,id)=>{
     id=id.trim();
     let src = id.startsWith("http") ? id : "https://drive.google.com/uc?export=view&id="+id;
     return '<br><img class="q-img" src="'+src+'" onerror="this.style.display=\'none\'">';
@@ -34,13 +37,13 @@ function renderTeks(t){
   return t;
 }
 
-// === 2. LOGIN ===
+// ===== LOGIN AWAL - SISWA + GURU =====
 function showLogin(){
   document.getElementById("app").innerHTML = `
   <div class="card" style="text-align:center"><h2>Ujian SMP NEGERI 2 PURWO</h2>
   <p class="small">Silakan pilih login</p>
-  <div style="display:flex;gap:8px">
-    <button onclick="showLoginSiswa()" style="background:#1a73e8">LOGIN SISWA</button>
+  <div class="flex2">
+    <button onclick="showLoginSiswa()">LOGIN SISWA</button>
     <button onclick="showLoginGuru()" style="background:#188038">LOGIN GURU</button>
   </div></div>
   <div id="loginBox"></div>`;
@@ -59,180 +62,7 @@ function showLoginGuru(){
   <input id="guruNama" placeholder="Nama Guru">
   <input id="guruPass" type="password" placeholder="Password Guru (12345)">
   <button onclick="masukGuru()">MASUK SEBAGAI GURU</button>
-  <p class="small">Password default: 12345 - Ganti di kode jika perlu</p></div>`;
-}
-function masukGuru(){
-  let p = document.getElementById("guruPass").value;
-  let n = document.getElementById("guruNama").value || "Guru";
-  if(p!="12345") return alert("Password salah! Password default: 12345");
-  guruNama = n;
-  showGuruPortal();
-}
-
-let guruNama = "Guru";
-
-async function showGuruPortal(){
-  document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru - ${guruNama}</h3><p class="small">Memuat data...</p></div>`;
-  try{
-    let r = await fetch(API_URL+"?action=getData"); let d = await r.json();
-    soalDB = d.soal||[]; jadwalDB = d.jadwal||[];
-  }catch(e){}
-
-  let htmlJadwal = "";
-  if(jadwalDB.length==0) htmlJadwal = `<p class="small">Belum ada jadwal.</p>`;
-  jadwalDB.forEach((j,i)=>{
-    htmlJadwal += `<div style="border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0">
-    <b>${j.mapel}</b> - ${j.kelas} <br><span class="small">${j.tanggal} | ${j.jam} | ${j.durasi} menit | ${j.keterangan||""}</span><br>
-    <button onclick="hapusJadwal(${i})" style="background:#d93025;margin-top:6px">HAPUS JADWAL INI</button></div>`;
-  });
-
-  // Hitung soal per kelas
-  let c7 = soalDB.filter(s=>s.kelas=="KELAS 7").length;
-  let c8 = soalDB.filter(s=>s.kelas=="KELAS 8").length;
-  let c9 = soalDB.filter(s=>s.kelas=="KELAS 9").length;
-
-  document.getElementById("app").innerHTML = `
-  <div class="card"><h3>Portal Guru - ${guruNama}</h3>
-  <p class="small">Soal: KELAS 7 = ${c7} | KELAS 8 = ${c8} | KELAS 9 = ${c9} | Total = ${soalDB.length}</p>
-  <button onclick="showLogin()" style="background:#666">KELUAR / KE LOGIN SISWA</button></div>
-
-  <div class="card"><h3>📅 Tambah Jadwal Baru</h3>
-  <select id="jMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
-  <select id="jKelas"><option value="KELAS 7">KHUSUS KELAS 7 (7A+7B)</option><option value="KELAS 8">KHUSUS KELAS 8 (8A+8B)</option><option value="KELAS 9">KHUSUS KELAS 9 (9A+9B)</option><option value="SEMUA">SEMUA KELAS 7A-9B</option></select>
-  <input type="date" id="jTanggal" value="2026-11-17">
-  <input type="time" id="jJam" value="07:30">
-  <input type="number" id="jDurasi" value="60" placeholder="Durasi (menit)">
-  <input id="jKet" placeholder="Keterangan - Contoh: Ujian Matematika Kelas 7">
-  <button onclick="tambahJadwal()">+ TAMBAH JADWAL</button>
-  <p class="small">Untuk jadwal sama jamnya 3 kelas, tambah 3x: KELAS 7, KELAS 8, KELAS 9 dengan jam yang sama.</p></div>
-
-  <div class="card"><h3>📋 Daftar Jadwal (${jadwalDB.length})</h3>${htmlJadwal}</div>
-
-  <div class="card"><h3>📝 Tambah Soal Cepat</h3>
-  <select id="sMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option></select>
-  <select id="sKelas"><option value="KELAS 7">KELAS 7</option><option value="KELAS 8">KELAS 8</option><option value="KELAS 9">KELAS 9</option><option value="SEMUA">SEMUA</option></select>
-  <select id="sJenis"><option value="pg">Pilihan Ganda (pg)</option><option value="pg_kompleks">PG Kompleks</option><option value="benar_salah">Benar-Salah</option><option value="menjodohkan">Menjodohkan</option><option value="essay">Essay</option></select>
-  <input id="sBab" placeholder="Bab - Contoh: Bilangan Bulat">
-  <textarea id="sTanya" rows="3" placeholder="Pertanyaan. Untuk gambar: [GAMBAR:ID_DRIVE]"></textarea>
-  <input id="sA" placeholder="Pilihan A - Bisa [GAMBAR:ID]">
-  <input id="sB" placeholder="Pilihan B">
-  <input id="sC" placeholder="Pilihan C">
-  <input id="sD" placeholder="Pilihan D">
-  <input id="sKunci" placeholder="Kunci - Contoh: B atau A,C atau B,S">
-  <button onclick="tambahSoal()">+ TAMBAH SOAL</button>
-  <p class="small">Soal yang ditambah di sini langsung masuk ke Sheets dan langsung bisa dikerjakan siswa.</p></div>
-  `;
-  window.scrollTo(0,0);
-}
-
-async function tambahJadwal(){
-  let data = {action:"addJadwal", mapel:document.getElementById("jMapel").value, kelas:document.getElementById("jKelas").value, tanggal:document.getElementById("jTanggal").value, jam:document.getElementById("jJam").value, durasi:document.getElementById("jDurasi").value, keterangan:document.getElementById("jKet").value};
-  if(!data.tanggal) return alert("Isi tanggal dulu!");
-  document.getElementById("app").innerHTML = `<div class="card">Menyimpan jadwal...</div>`;
-  try{
-    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
-    if(d.success){ alert("Jadwal berhasil ditambah!"); showGuruPortal(); }
-    else { alert("Apps Script belum support tambah jadwal. Buka Google Sheets > Tab Jadwal, paste manual. Data: "+JSON.stringify(data)); showGuruPortal(); }
-  }catch(e){ alert("Gagal simpan ke Apps Script. Coba paste manual di Sheets. Error: "+e); showGuruPortal(); }
-}
-
-async function hapusJadwal(i){
-  if(!confirm("Hapus jadwal ini?")) return;
-  // Karena Apps Script lama tidak ada hapus, kita arahkan ke Sheets
-  alert("Untuk hapus, buka Google Sheets > Tab Jadwal > Hapus baris ke-"+(i+2)+" ( "+jadwalDB[i].mapel+" - "+jadwalDB[i].kelas+" ). Lalu refresh halaman ini.");
-}
-
-async function tambahSoal(){
-  let data = {action:"addSoal", mapel:document.getElementById("sMapel").value, kelas:document.getElementById("sKelas").value, jenis:document.getElementById("sJenis").value, bab:document.getElementById("sBab").value, pertanyaan:document.getElementById("sTanya").value, A:document.getElementById("sA").value, B:document.getElementById("sB").value, C:document.getElementById("sC").value, D:document.getElementById("sD").value, kunci:document.getElementById("sKunci").value, bobot:10, guru:guruNama};
-  if(!data.pertanyaan) return alert("Isi pertanyaan dulu!");
-  try{
-    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
-    if(d.success){ alert("Soal berhasil ditambah!"); showGuruPortal(); }
-    else { alert("Apps Script belum support tambah soal. Paste manual di Sheets: "+data.mapel+" | "+data.kelas+" | "+data.pertanyaan); showGuruPortal(); }
-  }catch(e){ alert("Gagal simpan. Paste manual di Sheets."); showGuruPortal(); }
-}
-
-let guruNama = "Guru";
-
-async function showGuruPortal(){
-  document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru - ${guruNama}</h3><p class="small">Memuat data...</p></div>`;
-  try{
-    let r = await fetch(API_URL+"?action=getData"); let d = await r.json();
-    soalDB = d.soal||[]; jadwalDB = d.jadwal||[];
-  }catch(e){}
-
-  let htmlJadwal = "";
-  if(jadwalDB.length==0) htmlJadwal = `<p class="small">Belum ada jadwal.</p>`;
-  jadwalDB.forEach((j,i)=>{
-    htmlJadwal += `<div style="border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0">
-    <b>${j.mapel}</b> - ${j.kelas} <br><span class="small">${j.tanggal} | ${j.jam} | ${j.durasi} menit | ${j.keterangan||""}</span><br>
-    <button onclick="hapusJadwal(${i})" style="background:#d93025;margin-top:6px">HAPUS JADWAL INI</button></div>`;
-  });
-
-  // Hitung soal per kelas
-  let c7 = soalDB.filter(s=>s.kelas=="KELAS 7").length;
-  let c8 = soalDB.filter(s=>s.kelas=="KELAS 8").length;
-  let c9 = soalDB.filter(s=>s.kelas=="KELAS 9").length;
-
-  document.getElementById("app").innerHTML = `
-  <div class="card"><h3>Portal Guru - ${guruNama}</h3>
-  <p class="small">Soal: KELAS 7 = ${c7} | KELAS 8 = ${c8} | KELAS 9 = ${c9} | Total = ${soalDB.length}</p>
-  <button onclick="showLogin()" style="background:#666">KELUAR / KE LOGIN SISWA</button></div>
-
-  <div class="card"><h3>📅 Tambah Jadwal Baru</h3>
-  <select id="jMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
-  <select id="jKelas"><option value="KELAS 7">KHUSUS KELAS 7 (7A+7B)</option><option value="KELAS 8">KHUSUS KELAS 8 (8A+8B)</option><option value="KELAS 9">KHUSUS KELAS 9 (9A+9B)</option><option value="SEMUA">SEMUA KELAS 7A-9B</option></select>
-  <input type="date" id="jTanggal" value="2026-11-17">
-  <input type="time" id="jJam" value="07:30">
-  <input type="number" id="jDurasi" value="60" placeholder="Durasi (menit)">
-  <input id="jKet" placeholder="Keterangan - Contoh: Ujian Matematika Kelas 7">
-  <button onclick="tambahJadwal()">+ TAMBAH JADWAL</button>
-  <p class="small">Untuk jadwal sama jamnya 3 kelas, tambah 3x: KELAS 7, KELAS 8, KELAS 9 dengan jam yang sama.</p></div>
-
-  <div class="card"><h3>📋 Daftar Jadwal (${jadwalDB.length})</h3>${htmlJadwal}</div>
-
-  <div class="card"><h3>📝 Tambah Soal Cepat</h3>
-  <select id="sMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option></select>
-  <select id="sKelas"><option value="KELAS 7">KELAS 7</option><option value="KELAS 8">KELAS 8</option><option value="KELAS 9">KELAS 9</option><option value="SEMUA">SEMUA</option></select>
-  <select id="sJenis"><option value="pg">Pilihan Ganda (pg)</option><option value="pg_kompleks">PG Kompleks</option><option value="benar_salah">Benar-Salah</option><option value="menjodohkan">Menjodohkan</option><option value="essay">Essay</option></select>
-  <input id="sBab" placeholder="Bab - Contoh: Bilangan Bulat">
-  <textarea id="sTanya" rows="3" placeholder="Pertanyaan. Untuk gambar: [GAMBAR:ID_DRIVE]"></textarea>
-  <input id="sA" placeholder="Pilihan A - Bisa [GAMBAR:ID]">
-  <input id="sB" placeholder="Pilihan B">
-  <input id="sC" placeholder="Pilihan C">
-  <input id="sD" placeholder="Pilihan D">
-  <input id="sKunci" placeholder="Kunci - Contoh: B atau A,C atau B,S">
-  <button onclick="tambahSoal()">+ TAMBAH SOAL</button>
-  <p class="small">Soal yang ditambah di sini langsung masuk ke Sheets dan langsung bisa dikerjakan siswa.</p></div>
-  `;
-  window.scrollTo(0,0);
-}
-
-async function tambahJadwal(){
-  let data = {action:"addJadwal", mapel:document.getElementById("jMapel").value, kelas:document.getElementById("jKelas").value, tanggal:document.getElementById("jTanggal").value, jam:document.getElementById("jJam").value, durasi:document.getElementById("jDurasi").value, keterangan:document.getElementById("jKet").value};
-  if(!data.tanggal) return alert("Isi tanggal dulu!");
-  document.getElementById("app").innerHTML = `<div class="card">Menyimpan jadwal...</div>`;
-  try{
-    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
-    if(d.success){ alert("Jadwal berhasil ditambah!"); showGuruPortal(); }
-    else { alert("Apps Script belum support tambah jadwal. Buka Google Sheets > Tab Jadwal, paste manual. Data: "+JSON.stringify(data)); showGuruPortal(); }
-  }catch(e){ alert("Gagal simpan ke Apps Script. Coba paste manual di Sheets. Error: "+e); showGuruPortal(); }
-}
-
-async function hapusJadwal(i){
-  if(!confirm("Hapus jadwal ini?")) return;
-  // Karena Apps Script lama tidak ada hapus, kita arahkan ke Sheets
-  alert("Untuk hapus, buka Google Sheets > Tab Jadwal > Hapus baris ke-"+(i+2)+" ( "+jadwalDB[i].mapel+" - "+jadwalDB[i].kelas+" ). Lalu refresh halaman ini.");
-}
-
-async function tambahSoal(){
-  let data = {action:"addSoal", mapel:document.getElementById("sMapel").value, kelas:document.getElementById("sKelas").value, jenis:document.getElementById("sJenis").value, bab:document.getElementById("sBab").value, pertanyaan:document.getElementById("sTanya").value, A:document.getElementById("sA").value, B:document.getElementById("sB").value, C:document.getElementById("sC").value, D:document.getElementById("sD").value, kunci:document.getElementById("sKunci").value, bobot:10, guru:guruNama};
-  if(!data.pertanyaan) return alert("Isi pertanyaan dulu!");
-  try{
-    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
-    if(d.success){ alert("Soal berhasil ditambah!"); showGuruPortal(); }
-    else { alert("Apps Script belum support tambah soal. Paste manual di Sheets: "+data.mapel+" | "+data.kelas+" | "+data.pertanyaan); showGuruPortal(); }
-  }catch(e){ alert("Gagal simpan. Paste manual di Sheets."); showGuruPortal(); }
+  <p class="small">Password default: 12345</p></div>`;
 }
 function masuk(){
   let n=document.getElementById("nama").value.trim();
@@ -241,17 +71,29 @@ function masuk(){
   siswa={nama:n,kelas:k}; kelasAktif=k;
   loadData();
 }
+function masukGuru(){
+  let p=document.getElementById("guruPass").value;
+  let n=document.getElementById("guruNama").value.trim()||"Guru";
+  if(p!="12345") return alert("Password salah!");
+  guruNama=n;
+  showGuruPortal();
+}
+
+// ===== LOAD DATA =====
 async function loadData(){
   document.getElementById("app").innerHTML="<div class='card'>Memuat soal...</div>";
   try{
     let r=await fetch(API_URL+"?action=getData"); let d=await r.json();
+    if(d.error) return document.getElementById("app").innerHTML="<div class='card'>Error: "+d.error+"<br><button onclick='showLogin()'>Kembali</button></div>";
     soalDB=d.soal||[]; jadwalDB=d.jadwal||[];
     showJadwal();
-  }catch(e){ document.getElementById("app").innerHTML="<div class='card'>Gagal load. Cek internet / URL Apps Script. <button onclick='showLogin()'>Coba Lagi</button></div>"; }
+  }catch(e){ document.getElementById("app").innerHTML="<div class='card'>Gagal load. Cek API_URL / Deploy Apps Script.<br><button onclick='showLogin()'>Coba Lagi</button></div>"; }
 }
 
-// === 3. JADWAL - FILTER KELAS 7/8/9 + SEMUA ===
+// ===== JADWAL SISWA - KELAS 7/8/9 + SEMUA =====
 function kelasCocok(kelasSoal){
+  if(!kelasSoal) return false;
+  kelasSoal=String(kelasSoal).trim().toUpperCase();
   if(kelasSoal=="SEMUA") return true;
   if(kelasSoal==kelasAktif) return true;
   if(kelasSoal=="KELAS 7" && (kelasAktif=="7A"||kelasAktif=="7B")) return true;
@@ -263,75 +105,69 @@ function showJadwal(){
   let j = jadwalDB.filter(x=>kelasCocok(x.kelas));
   let h=`<div class="card"><b>Halo, ${siswa.nama} - ${siswa.kelas}</b><p class="small">Pilih jadwal ujian</p></div>`;
   if(j.length==0) h+=`<div class="card">Belum ada jadwal untuk kelas kamu.</div>`;
-  j.forEach((x,i)=>{
-    h+=`<div class="card"><span class="badge">${x.kelas}</span><br><b>${x.mapel}</b><br><span class="small">${x.tanggal} | ${x.jam} | ${x.durasi} menit | ${x.keterangan||""}</span><br><button onclick="mulaiUjian('${x.mapel}','${x.kelas}')">MULAI UJIAN</button></div>`;
+  j.forEach((x)=>{
+    // Escape kutip untuk onclick
+    let m = String(x.mapel).replace(/'/g,"");
+    let k = String(x.kelas).replace(/'/g,"");
+    h+=`<div class="card"><span class="badge">${x.kelas}</span><br><b>${x.mapel}</b><br><span class="small">${x.tanggal} | ${x.jam} | ${x.durasi} menit | ${x.keterangan||""}</span><br><button onclick="mulaiUjian('${m}','${k}')">MULAI UJIAN</button></div>`;
   });
+  h+=`<div class="card"><button onclick="showLogin()" style="background:#666">KELUAR</button></div>`;
   document.getElementById("app").innerHTML=h;
 }
 
-// === 4. MULAI UJIAN - 5 JENIS SOAL ===
+// ===== UJIAN - 5 JENIS SOAL + GAMBAR =====
 function mulaiUjian(mapel, kelasJadwal){
   mapelAktif=mapel;
-  // Filter soal: mapel sama + kelas cocok
   let list = soalDB.filter(s=> s.mapel==mapel && kelasCocok(s.kelas));
   if(list.length==0) return alert("Belum ada soal untuk "+mapel+" "+kelasJadwal);
   jawaban={};
-  // Acak soal (biar tidak sama urutannya)
   list = list.sort(()=>Math.random()-0.5);
   window.listSoal=list;
   renderSoal(0);
 }
 function renderSoal(idx){
   let list=window.listSoal; let s=list[idx];
-  let labelJenis = {pg:"Pilihan Ganda", pg_kompleks:"Pilihan Ganda Kompleks (Pilih lebih dari 1)", benar_salah:"Benar - Salah", menjodohkan:"Menjodohkan", essay:"Essay"}[s.jenis]||s.jenis;
+  let labelJenis = {pg:"Pilihan Ganda", pg_kompleks:"PG Kompleks (Boleh pilih >1)", benar_salah:"Benar - Salah", menjodohkan:"Menjodohkan", essay:"Essay"}[s.jenis]||s.jenis;
   let body="";
-  // --- PG BIASA ---
   if(s.jenis=="pg"){
     ["A","B","C","D"].forEach(h=>{
-      let val = s["opt"+h]||s[h]||"";
+      let val = s[h]||"";
       let act = jawaban[idx]==h?"active":"";
       body+=`<div class="opt ${act}" onclick="pilihPG(${idx},'${h}',this)"><b>${h}.</b><div>${renderTeks(val)}</div></div>`;
     });
   }
-  // --- PG KOMPLEKS (CHECKBOX) ---
   if(s.jenis=="pg_kompleks"){
     body+=`<p class="small">Centang jawaban yang benar, bisa lebih dari satu.</p>`;
     ["A","B","C","D"].forEach(h=>{
-      let val = s["opt"+h]||s[h]||"";
+      let val = s[h]||"";
       let arr = jawaban[idx]||[]; let act = arr.includes(h)?"active":"";
       body+=`<label class="checkrow ${act}"><input type="checkbox" ${act?"checked":""} onchange="pilihKompleks(${idx},'${h}',this)"> <b>${h}.</b> <span>${renderTeks(val)}</span></label>`;
     });
   }
-  // --- BENAR SALAH ---
   if(s.jenis=="benar_salah"){
     body+=`<p class="small">Pilih Benar / Salah untuk tiap pernyataan di soal.</p>
-    <div class="checkrow"><b>Pernyataan 1:</b> <select onchange="pilihBS(${idx},0,this.value)"><option value="">Pilih</option><option ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B</option><option ${jawaban[idx]&&jawaban[idx][0]=="S"?"selected":""}>S</option></select></div>
-    <div class="checkrow"><b>Pernyataan 2:</b> <select onchange="pilihBS(${idx},1,this.value)"><option value="">Pilih</option><option ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B</option><option ${jawaban[idx]&&jawaban[idx][1]=="S"?"selected":""}>S</option></select></div>
-    <p class="small">B = Benar, S = Salah. Kunci di Sheets contoh: B,S</p>`;
+    <div class="checkrow"><b>Pernyataan 1:</b> <select onchange="pilihBS(${idx},0,this.value)"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][0]=="S"?"selected":""}>S - Salah</option></select></div>
+    <div class="checkrow"><b>Pernyataan 2:</b> <select onchange="pilihBS(${idx},1,this.value)"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][1]=="S"?"selected":""}>S - Salah</option></select></div>
+    <p class="small">Kunci di Sheets contoh: B,S</p>`;
   }
-  // --- MENJODOHKAN ---
   if(s.jenis=="menjodohkan"){
     body+=`<p class="small">Pilih pasangan yang tepat dari dropdown.</p>
-    <div class="checkrow"><b>1.</b> <select onchange="pilihJodoh(${idx},0,this.value)"><option value="">Pilih Pasangan</option><option value="A" ${jawaban[idx]&&jawaban[idx][0]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][2]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][3]=="D"?"selected":""}>D</option></select></div>
-    <div class="checkrow"><b>2.</b> <select onchange="pilihJodoh(${idx},1,this.value)"><option value="">Pilih Pasangan</option><option value="A" ${jawaban[idx]&&jawaban[idx][0]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][2]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][3]=="D"?"selected":""}>D</option></select></div>`;
-    // Tampilkan pilihan A-D sebagai daftar pasangan
+    <div class="checkrow"><b>1.</b> <select onchange="pilihJodoh(${idx},0,this.value)"><option value="">Pilih Pasangan</option><option value="A" ${jawaban[idx]&&jawaban[idx][0]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][0]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][0]=="D"?"selected":""}>D</option></select></div>
+    <div class="checkrow"><b>2.</b> <select onchange="pilihJodoh(${idx},1,this.value)"><option value="">Pilih Pasangan</option><option value="A" ${jawaban[idx]&&jawaban[idx][1]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][1]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][1]=="D"?"selected":""}>D</option></select></div>`;
     ["A","B","C","D"].forEach(h=>{
-      let val = s["opt"+h]||s[h]||"";
+      let val = s[h]||"";
       body+=`<div class="small"><b>${h}.</b> ${renderTeks(val)}</div>`;
     });
   }
-  // --- ESSAY ---
   if(s.jenis=="essay"){
     body+=`<textarea rows="4" placeholder="Tulis jawabanmu..." oninput="jawaban[${idx}]=this.value">${jawaban[idx]||""}</textarea>`;
   }
-
   let nav = "";
   if(idx>0) nav+=`<button onclick="renderSoal(${idx-1})" style="background:#666">⬅ SEBELUMNYA</button>`;
   if(idx<list.length-1) nav+=`<button onclick="renderSoal(${idx+1})">SELANJUTNYA ➡</button>`;
   else nav+=`<button onclick="kumpul()" style="background:#188038">KUMPULKAN JAWABAN</button>`;
-
   document.getElementById("app").innerHTML = `
-  <div class="card"><span class="badge">${s.jenis} • ${s.bab||""}</span> <span class="small">Soal ${idx+1} / ${list.length}</span>
+  <div class="card"><span class="badge">${labelJenis} • ${s.bab||""}</span> <span class="small">Soal ${idx+1} / ${list.length}</span>
   <h3>${renderTeks(s.pertanyaan)}</h3>${body}</div>
   <div class="card">${nav}<p class="small">Jawaban tersimpan otomatis. Jangan refresh saat ujian.</p></div>`;
   window.scrollTo(0,0);
@@ -344,45 +180,112 @@ function pilihKompleks(i,h,el){
 function pilihBS(i,pos,val){ if(!jawaban[i]) jawaban[i]=[]; jawaban[i][pos]=val; }
 function pilihJodoh(i,pos,val){ if(!jawaban[i]) jawaban[i]=[]; jawaban[i][pos]=val; }
 
-// === 5. NILAI OTOMATIS + KIRIM DENGAN RETRY (UNTUK 150 SISWA) ===
 function hitungNilai(){
   let list=window.listSoal; let benar=0, total=0, detail=[];
   list.forEach((s,idx)=>{
     let bobot = parseFloat(s.bobot||10); total+=bobot;
     let j = jawaban[idx]; let isBenar=false;
     if(s.jenis=="pg"){
-      if(j && j==s.kunci) isBenar=true;
+      if(j && String(j).trim().toUpperCase()==String(s.kunci||"").trim().toUpperCase()) isBenar=true;
     }
     if(s.jenis=="pg_kompleks"){
-      // Kunci contoh "A,C" -> harus sama persis
-      let kunci = (s.kunci||"").split(",").map(x=>x.trim()).sort().join(",");
+      let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).sort().join(",");
       let jawab = (j||[]).slice().sort().join(",");
       if(kunci && kunci==jawab) isBenar=true;
     }
     if(s.jenis=="benar_salah" || s.jenis=="menjodohkan"){
-      let kunci = (s.kunci||"").split(",").map(x=>x.trim()).join(",");
+      let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).join(",");
       let jawab = (j||[]).join(",");
       if(kunci && kunci==jawab) isBenar=true;
     }
-    if(s.jenis=="essay"){ isBenar=false; } // Essay dinilai manual guru
+    if(s.jenis=="essay"){ isBenar=false; }
     if(isBenar) benar+=bobot;
     detail.push({no:idx+1, jenis:s.jenis, jawaban: Array.isArray(j)?j.join(","): (j||""), kunci:s.kunci||"", benar:isBenar});
   });
-  return {nilai: Math.round(benar/total*100), benar, total, detail};
+  return {nilai: total>0?Math.round(benar/total*100):0, benar, total, detail};
 }
 async function kumpul(){
   if(!confirm("Kumpulkan jawaban?")) return;
   let h = hitungNilai();
   document.getElementById("app").innerHTML=`<div class="card"><h3>Mengirim jawaban...</h3><p>Jangan tutup halaman ini.</p></div>`;
-  // Retry 3x biar tidak gagal saat 150 siswa bareng
   for(let coba=1;coba<=3;coba++){
     try{
       let r=await fetch(API_URL, {method:"POST", body: JSON.stringify({action:"simpanNilai", nama:siswa.nama, kelas:siswa.kelas, mapel:mapelAktif, nilai:h.nilai, detail:JSON.stringify(h.detail)})});
       let d=await r.json();
       if(d.success) break;
-    }catch(e){ if(coba==3) {} else await new Promise(res=>setTimeout(res,1500)); }
+      if(coba==3) alert("Gagal simpan: "+(d.msg||""));
+    }catch(e){ if(coba==3) alert("Gagal simpan ke Apps Script. Hubungi guru. Error: "+e.message); else await new Promise(res=>setTimeout(res,1500)); }
   }
-  document.getElementById("app").innerHTML=`<div class="card"><h2>✅ Ujian Selesai</h2><p>Nama: ${siswa.nama}</p><p>Kelas: ${siswa.kelas}</p><p>Mapel: ${mapelAktif}</p><h1>Nilai PG: ${h.nilai}</h1><p class="small">Soal Essay akan dinilai manual oleh guru. Jika nilai 0 tapi kamu sudah jawab, hubungi guru, datamu sudah terkirim.</p><button onclick="showLogin()">KEMBALI KE LOGIN</button></div>`;
+  document.getElementById("app").innerHTML=`<div class="card"><h2>✅ Ujian Selesai</h2><p>Nama: ${siswa.nama}</p><p>Kelas: ${siswa.kelas}</p><p>Mapel: ${mapelAktif}</p><h1>Nilai PG: ${h.nilai}</h1><p class="small">Soal Essay akan dinilai manual oleh guru.</p><button onclick="showLogin()">KEMBALI KE LOGIN</button></div>`;
+}
+
+// ===== PORTAL GURU - BISA EDIT JADWAL + SOAL =====
+async function showGuruPortal(){
+  document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru - ${guruNama}</h3><p class="small">Memuat data...</p></div>`;
+  try{
+    let r = await fetch(API_URL+"?action=getData"); let d = await r.json();
+    soalDB = d.soal||[]; jadwalDB = d.jadwal||[];
+  }catch(e){}
+  let htmlJadwal = "";
+  if(jadwalDB.length==0) htmlJadwal = `<p class="small">Belum ada jadwal.</p>`;
+  jadwalDB.forEach((j,i)=>{
+    htmlJadwal += `<div style="border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0">
+    <b>${j.mapel}</b> - ${j.kelas} <br><span class="small">${j.tanggal} | ${j.jam} | ${j.durasi} menit | ${j.keterangan||""}</span><br>
+    <p class="small">Hapus: Buka Sheets > Tab Jadwal > Hapus baris ke-${i+2}</p></div>`;
+  });
+  let c7 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 7").length;
+  let c8 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 8").length;
+  let c9 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 9").length;
+  document.getElementById("app").innerHTML = `
+  <div class="card"><h3>Portal Guru - ${guruNama}</h3>
+  <p class="small">Soal: KELAS 7 = ${c7} | KELAS 8 = ${c8} | KELAS 9 = ${c9} | Total = ${soalDB.length}</p>
+  <button onclick="showLogin()" style="background:#666">KELUAR / KE LOGIN SISWA</button></div>
+
+  <div class="card"><h3>📅 Tambah Jadwal Baru</h3>
+  <select id="jMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
+  <select id="jKelas"><option value="KELAS 7">KHUSUS KELAS 7 (7A+7B)</option><option value="KELAS 8">KHUSUS KELAS 8 (8A+8B)</option><option value="KELAS 9">KHUSUS KELAS 9 (9A+9B)</option><option value="SEMUA">SEMUA KELAS 7A-9B</option></select>
+  <input type="date" id="jTanggal" value="2026-11-17">
+  <input type="time" id="jJam" value="07:30">
+  <input type="number" id="jDurasi" value="60" placeholder="Durasi (menit)">
+  <input id="jKet" placeholder="Keterangan - Contoh: Ujian Matematika Kelas 7">
+  <button onclick="tambahJadwal()">+ TAMBAH JADWAL</button>
+  <p class="small">Untuk jadwal sama jamnya 3 kelas, tambah 3x: KELAS 7, KELAS 8, KELAS 9 dengan jam yang sama.</p></div>
+
+  <div class="card"><h3>📋 Daftar Jadwal (${jadwalDB.length})</h3>${htmlJadwal}</div>
+
+  <div class="card"><h3>📝 Tambah Soal Cepat</h3>
+  <select id="sMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
+  <select id="sKelas"><option value="KELAS 7">KELAS 7</option><option value="KELAS 8">KELAS 8</option><option value="KELAS 9">KELAS 9</option><option value="SEMUA">SEMUA</option></select>
+  <select id="sJenis"><option value="pg">Pilihan Ganda (pg)</option><option value="pg_kompleks">PG Kompleks</option><option value="benar_salah">Benar-Salah</option><option value="menjodohkan">Menjodohkan</option><option value="essay">Essay</option></select>
+  <input id="sBab" placeholder="Bab - Contoh: Bilangan Bulat">
+  <textarea id="sTanya" rows="3" placeholder="Pertanyaan. Untuk gambar: [GAMBAR:ID_DRIVE]"></textarea>
+  <input id="sA" placeholder="Pilihan A - Bisa [GAMBAR:ID]">
+  <input id="sB" placeholder="Pilihan B">
+  <input id="sC" placeholder="Pilihan C">
+  <input id="sD" placeholder="Pilihan D">
+  <input id="sKunci" placeholder="Kunci - Contoh: B atau A,C atau B,S">
+  <button onclick="tambahSoal()">+ TAMBAH SOAL</button>
+  <p class="small">Soal yang ditambah di sini langsung masuk ke Sheets dan langsung bisa dikerjakan siswa.</p></div>
+  `;
+  window.scrollTo(0,0);
+}
+async function tambahJadwal(){
+  let data = {action:"addJadwal", mapel:document.getElementById("jMapel").value, kelas:document.getElementById("jKelas").value, tanggal:document.getElementById("jTanggal").value, jam:document.getElementById("jJam").value, durasi:document.getElementById("jDurasi").value, keterangan:document.getElementById("jKet").value};
+  if(!data.tanggal) return alert("Isi tanggal dulu!");
+  try{
+    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
+    if(d.success){ alert("Jadwal berhasil ditambah!"); showGuruPortal(); }
+    else { alert("Gagal: "+(d.msg||"Cek nama Sheet Jadwal")); showGuruPortal(); }
+  }catch(e){ alert("Gagal simpan ke Apps Script. Pastikan Apps Script sudah di-Deploy ulang dengan kode baru. Error: "+e.message); }
+}
+async function tambahSoal(){
+  let data = {action:"addSoal", mapel:document.getElementById("sMapel").value, kelas:document.getElementById("sKelas").value, jenis:document.getElementById("sJenis").value, bab:document.getElementById("sBab").value, pertanyaan:document.getElementById("sTanya").value, A:document.getElementById("sA").value, B:document.getElementById("sB").value, C:document.getElementById("sC").value, D:document.getElementById("sD").value, kunci:document.getElementById("sKunci").value, bobot:10, guru:guruNama};
+  if(!data.pertanyaan) return alert("Isi pertanyaan dulu!");
+  try{
+    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
+    if(d.success){ alert("Soal berhasil ditambah!"); showGuruPortal(); }
+    else { alert("Gagal: "+(d.msg||"Cek nama Sheet Soal")); showGuruPortal(); }
+  }catch(e){ alert("Gagal simpan. Pastikan Apps Script sudah di-Deploy ulang. Error: "+e.message); }
 }
 showLogin();
 </script></body></html>
