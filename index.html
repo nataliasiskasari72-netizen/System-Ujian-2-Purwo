@@ -1,84 +1,86 @@
 <!DOCTYPE html>
 <html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ujian SMP NEGERI 2 PURWO</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box} body{font-family:Arial,sans-serif;background:#f0f2f5;margin:0;padding:12px}
-.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-input,select,textarea,button{width:100%;padding:11px;border-radius:10px;border:1px solid #ddd;margin:6px 0;font-size:15px}
-button{background:#1a73e8;color:#fff;border:none;font-weight:700;cursor:pointer}
-button:disabled{background:#999}
-.opt{border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0;cursor:pointer;display:flex;gap:8px;align-items:flex-start}
-.opt.active{border-color:#1a73e8;background:#e8f0fe}
-.opt img{max-width:100%;border-radius:8px;margin-top:6px}
-.q-img{max-width:100%;border-radius:10px;margin:10px 0}
-.badge{display:inline-block;background:#e8f0fe;color:#1a73e8;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
-.small{font-size:13px;color:#666}
-.checkrow{display:flex;gap:8px;align-items:center;border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0}
-.checkrow.active{border-color:#1a73e8;background:#e8f0fe}
-.flex2{display:flex;gap:8px} .flex2 button{flex:1}
+*{box-sizing:border-box} body{font-family:'Plus Jakarta Sans',Arial,sans-serif;background:#eef2f7;margin:0;padding:0;color:#1e293b}
+.top{background:linear-gradient(135deg,#0f4c81 0%,#1a73e8 60%,#0ea5e9 100%);color:#fff;padding:22px 18px 28px;border-radius:0 0 28px 28px;text-align:center;box-shadow:0 10px 30px rgba(15,76,129,.25)}
+.top h1{margin:4px 0;font-size:22px;letter-spacing:.3px}.top p{margin:0;opacity:.9;font-size:13px}
+.wrap{max-width:520px;margin:-14px auto 0;padding:0 14px 30px}
+.card{background:#fff;border-radius:20px;padding:18px;margin:14px 0;box-shadow:0 6px 20px rgba(0,0,0,.07);border:1px solid #eef2f7}
+.card h3{margin:0 0 10px;font-size:16px}
+input,select,textarea{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e2e8f0;margin:7px 0;font-size:15px;background:#f8fafc;outline:none}
+input:focus,select:focus,textarea:focus{border-color:#1a73e8;background:#fff}
+button{width:100%;padding:14px;border-radius:12px;border:none;margin:7px 0;font-size:15px;font-weight:800;cursor:pointer;transition:.2s}
+.btn-blue{background:linear-gradient(135deg,#1a73e8,#0ea5e9);color:#fff;box-shadow:0 6px 14px rgba(26,115,232,.3)}
+.btn-green{background:#188038;color:#fff}.btn-orange{background:#f59e0b;color:#fff}.btn-gray{background:#f1f5f9;color:#475569}
+button:active{transform:scale(.98)}
+.badge{display:inline-block;background:#e0f2fe;color:#0369a1;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:800}
+.badge-green{background:#dcfce7;color:#166534}.badge-orange{background:#fef3c7;color:#92400e}
+.small{font-size:13px;color:#64748b;line-height:1.5}
+.opt{border:1.5px solid #e2e8f0;border-radius:14px;padding:13px;margin:8px 0;cursor:pointer;display:flex;gap:10px;align-items:flex-start;background:#fff}
+.opt.active{border-color:#1a73e8;background:#eff6ff;box-shadow:0 4px 12px rgba(26,115,232,.12)}
+.opt b{width:28px;height:28px;min-width:28px;background:#f1f5f9;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
+.opt.active b{background:#1a73e8;color:#fff}
+.opt img{max-width:100%;border-radius:10px;margin-top:6px}
+.q-img{max-width:100%;border-radius:14px;margin:12px 0;box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.checkrow{display:flex;gap:10px;align-items:center;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px;margin:7px 0;background:#fff}
+.checkrow.active{border-color:#1a73e8;background:#eff6ff}
+.flex2{display:flex;gap:10px}.flex2 button{flex:1}
+.jadwal-card{background:#fff;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 4px 14px rgba(0,0,0,.06);border-left:5px solid #1a73e8}
+.stat{display:flex;gap:10px}.stat div{flex:1;background:#f8fafc;border-radius:14px;padding:12px;text-align:center}
+.stat b{font-size:20px;display:block}.stat span{font-size:12px;color:#64748b}
+.guru-link{font-size:12px;color:#94a3b8;text-align:center;margin-top:18px;cursor:pointer;text-decoration:underline}
+.nilai-row{border-bottom:1px dashed #e2e8f0;padding:10px 0;font-size:14px}
+.progress{height:8px;background:#e2e8f0;border-radius:20px;overflow:hidden;margin:8px 0}.progress div{height:100%;background:linear-gradient(90deg,#1a73e8,#0ea5e9);transition:.3s}
 </style></head>
 <body>
-<div id="app"></div>
+<div class="top"><p>🏫 SMP NEGERI 2 PURWO</p><h1>Ujian Online</h1><p>Belajar • Ujian • Nilai Langsung</p></div>
+<div class="wrap"><div id="app"></div>
+<div class="guru-link" onclick="showLoginGuru()">Login Guru •</div>
+</div>
 <script>
-// ===== GANTI INI SAJA =====
 const API_URL = "https://script.google.com/macros/s/AKfycbyKYE0gBaBH93jYCH1lItOg1TX9_ZCN5w-Bzze2X5h0Q27dbkEI4w-GZcnKqTgQTLosQA/exec";
-// ============================
 let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="", guruNama="Guru";
-
-// ===== RENDER GAMBAR DARI DRIVE =====
-// Format di Sheets: [GAMBAR:ID_DRIVE] atau [GAMBAR:https://...jpg]
 function renderTeks(t){
   if(!t) return "";
   t = String(t).replace(/\[GAMBAR:\s*([^\]]+)\]/g, (m,id)=>{
-    id=id.trim();
-    let src = id.startsWith("http") ? id : "https://drive.google.com/uc?export=view&id="+id;
+    id=id.trim(); let src = id.startsWith("http") ? id : "https://drive.google.com/uc?export=view&id="+id;
     return '<br><img class="q-img" src="'+src+'" onerror="this.style.display=\'none\'">';
   });
   return t;
 }
-
-// ===== LOGIN AWAL - SISWA + GURU =====
+// ===== LOGIN SISWA SAJA (TIDAK ADA TOMBOL GURU) =====
 function showLogin(){
   document.getElementById("app").innerHTML = `
-  <div class="card" style="text-align:center"><h2>Ujian SMP NEGERI 2 PURWO</h2>
-  <p class="small">Silakan pilih login</p>
-  <div class="flex2">
-    <button onclick="showLoginSiswa()">LOGIN SISWA</button>
-    <button onclick="showLoginGuru()" style="background:#188038">LOGIN GURU</button>
-  </div></div>
-  <div id="loginBox"></div>`;
-  showLoginSiswa();
-}
-function showLoginSiswa(){
-  document.getElementById("loginBox").innerHTML = `
-  <div class="card"><h3>Login Siswa</h3>
+  <div class="card" style="text-align:center"><div style="font-size:42px">🎓</div><h3>Selamat Datang, Siswa!</h3><p class="small">Masukkan nama lengkap dan kelas untuk melihat jadwal ujian.</p>
   <input id="nama" placeholder="Nama Lengkap - Contoh: Budi Santoso">
   <select id="kelas"><option value="">Pilih Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select>
-  <button onclick="masuk()">MASUK SEBAGAI SISWA</button></div>`;
+  <button class="btn-blue" onclick="masuk()">MASUK & LIHAT JADWAL ➜</button>
+  <p class="small">Pastikan nama sesuai absen. Nilai akan masuk ke rekap guru.</p></div>
+  <div class="card"><h3>ℹ️ Cara Ujian</h3><p class="small">1. Masuk pakai nama & kelas<br>2. Pilih jadwal ujian<br>3. Jawab semua soal, lalu kumpulkan<br>4. Nilai PG langsung keluar</p></div>`;
 }
 function showLoginGuru(){
-  document.getElementById("loginBox").innerHTML = `
-  <div class="card"><h3>Login Guru</h3>
+  document.getElementById("app").innerHTML = `
+  <div class="card"><div style="font-size:36px;text-align:center">👩‍🏫</div><h3 style="text-align:center">Login Guru</h3>
   <input id="guruNama" placeholder="Nama Guru">
-  <input id="guruPass" type="password" placeholder="Password Guru (12345)">
-  <button onclick="masukGuru()">MASUK SEBAGAI GURU</button>
-  <p class="small">Password default: 12345</p></div>`;
+  <input id="guruPass" type="password" placeholder="Password Guru">
+  <button class="btn-green" onclick="masukGuru()">MASUK SEBAGAI GURU</button>
+  <button class="btn-gray" onclick="showLogin()">← Kembali ke Login Siswa</button>
+  <p class="small" style="text-align:center">Password default awal: 12345<br>Setelah login bisa ganti di Portal Guru.</p></div>`;
 }
 function masuk(){
   let n=document.getElementById("nama").value.trim();
   let k=document.getElementById("kelas").value;
-  if(!n||!k) return alert("Isi nama dan kelas!");
-  siswa={nama:n,kelas:k}; kelasAktif=k;
-  loadData();
+  if(!n||!k) return alert("Isi nama dan kelas dulu ya!");
+  siswa={nama:n,kelas:k}; kelasAktif=k; loadData();
 }
 function masukGuru(){
   let p=document.getElementById("guruPass").value;
   let n=document.getElementById("guruNama").value.trim()||"Guru";
-  // Password diambil dari yang disimpan guru, kalau belum pernah ganti, default 12345
   let passTersimpan = localStorage.getItem("passGuru") || "12345";
-  if(p!=passTersimpan) return alert("Password salah! Password default awal adalah 12345");
-  guruNama=n;
-  showGuruPortal();
+  if(p!=passTersimpan) return alert("Password salah!");
+  guruNama=n; showGuruPortal();
 }
 function gantiPassword(){
   let lama = prompt("Masukkan Password Lama:");
@@ -88,28 +90,18 @@ function gantiPassword(){
   let baru = prompt("Masukkan Password Baru (min 4 karakter):");
   if(!baru || baru.length < 4) return alert("Password baru minimal 4 karakter!");
   let konfirm = prompt("Ulangi Password Baru:");
-  if(baru != konfirm) return alert("Password baru tidak sama! Coba lagi.");
+  if(baru != konfirm) return alert("Password baru tidak sama!");
   localStorage.setItem("passGuru", baru);
-  alert("Password berhasil diganti! Password baru: "+baru+"\nJangan lupa catat, besok login pakai password baru ini.");
+  alert("Password berhasil diganti!");
 }
-function resetPassword(){
-  if(!confirm("Reset password ke 12345?")) return;
-  localStorage.removeItem("passGuru");
-  alert("Password direset ke 12345. Silakan login lagi.");
-}
-
-// ===== LOAD DATA =====
 async function loadData(){
-  document.getElementById("app").innerHTML="<div class='card'>Memuat soal...</div>";
+  document.getElementById("app").innerHTML="<div class='card' style='text-align:center'>⏳ Memuat soal...</div>";
   try{
     let r=await fetch(API_URL+"?action=getData"); let d=await r.json();
-    if(d.error) return document.getElementById("app").innerHTML="<div class='card'>Error: "+d.error+"<br><button onclick='showLogin()'>Kembali</button></div>";
-    soalDB=d.soal||[]; jadwalDB=d.jadwal||[];
-    showJadwal();
-  }catch(e){ document.getElementById("app").innerHTML="<div class='card'>Gagal load. Cek API_URL / Deploy Apps Script.<br><button onclick='showLogin()'>Coba Lagi</button></div>"; }
+    if(d.error) return document.getElementById("app").innerHTML="<div class='card'>Error: "+d.error+"<br><button class='btn-gray' onclick='showLogin()'>Kembali</button></div>";
+    soalDB=d.soal||[]; jadwalDB=d.jadwal||[]; showJadwal();
+  }catch(e){ document.getElementById("app").innerHTML="<div class='card'>Gagal load. Cek API_URL / Deploy Apps Script.<br><button class='btn-gray' onclick='showLogin()'>Coba Lagi</button></div>"; }
 }
-
-// ===== JADWAL SISWA - KELAS 7/8/9 + SEMUA =====
 function kelasCocok(kelasSoal){
   if(!kelasSoal) return false;
   kelasSoal=String(kelasSoal).trim().toUpperCase();
@@ -122,289 +114,131 @@ function kelasCocok(kelasSoal){
 }
 function showJadwal(){
   let j = jadwalDB.filter(x=>kelasCocok(x.kelas));
-  let h=`<div class="card"><b>Halo, ${siswa.nama} - ${siswa.kelas}</b><p class="small">Pilih jadwal ujian</p></div>`;
-  if(j.length==0) h+=`<div class="card">Belum ada jadwal untuk kelas kamu.</div>`;
+  let h=`<div class="card"><div style="display:flex;align-items:center;gap:12px"><div style="width:48px;height:48px;background:#e0f2fe;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">👋</div><div><b style="font-size:16px">Halo, ${siswa.nama}</b><br><span class="small">Kelas ${siswa.kelas} • ${j.length} ujian tersedia</span></div></div></div>`;
+  if(j.length==0) h+=`<div class="card" style="text-align:center"><div style="font-size:36px">📭</div><p>Belum ada jadwal untuk kelas kamu.</p><p class="small">Silakan hubungi guru / cek lagi nanti.</p></div>`;
   j.forEach((x)=>{
-    // Escape kutip untuk onclick
-    let m = String(x.mapel).replace(/'/g,"");
-    let k = String(x.kelas).replace(/'/g,"");
-    h+=`<div class="card"><span class="badge">${x.kelas}</span><br><b>${x.mapel}</b><br><span class="small">${x.tanggal} | ${x.jam} | ${x.durasi} menit | ${x.keterangan||""}</span><br><button onclick="mulaiUjian('${m}','${k}')">MULAI UJIAN</button></div>`;
+    let m = String(x.mapel).replace(/'/g,""); let k = String(x.kelas).replace(/'/g,"");
+    h+=`<div class="jadwal-card"><span class="badge">${x.kelas}</span> <span class="badge badge-green">${x.durasi} Menit</span><br><b style="font-size:17px;margin:8px 0;display:block">📚 ${x.mapel}</b><span class="small">📅 ${x.tanggal} &nbsp; 🕐 ${x.jam} &nbsp; ${x.keterangan||""}</span><br><button class="btn-blue" onclick="mulaiUjian('${m}','${k}')">MULAI UJIAN ➜</button></div>`;
   });
-  h+=`<div class="card"><button onclick="showLogin()" style="background:#666">KELUAR</button></div>`;
+  h+=`<div class="card"><button class="btn-gray" onclick="showLogin()">KELUAR</button></div>`;
   document.getElementById("app").innerHTML=h;
 }
-
-// ===== UJIAN - 5 JENIS SOAL + GAMBAR =====
 function mulaiUjian(mapel, kelasJadwal){
   mapelAktif=mapel;
   let list = soalDB.filter(s=> s.mapel==mapel && kelasCocok(s.kelas));
-  if(list.length==0) return alert("Belum ada soal untuk "+mapel+" "+kelasJadwal);
-  jawaban={};
-  list = list.sort(()=>Math.random()-0.5);
-  window.listSoal=list;
-  renderSoal(0);
+  if(list.length==0) return alert("Belum ada soal untuk "+mapel);
+  jawaban={}; list = list.sort(()=>Math.random()-0.5); window.listSoal=list; renderSoal(0);
 }
 function renderSoal(idx){
   let list=window.listSoal; let s=list[idx];
-  let labelJenis = {pg:"Pilihan Ganda", pg_kompleks:"PG Kompleks (Boleh pilih >1)", benar_salah:"Benar - Salah", menjodohkan:"Menjodohkan", essay:"Essay"}[s.jenis]||s.jenis;
+  let labelJenis = {pg:"Pilihan Ganda", pg_kompleks:"PG Kompleks", benar_salah:"Benar - Salah", menjodohkan:"Menjodohkan", essay:"Essay"}[s.jenis]||s.jenis;
+  let persen = Math.round((idx+1)/list.length*100);
   let body="";
   if(s.jenis=="pg"){
     ["A","B","C","D"].forEach(h=>{
-      let val = s[h]||"";
-      let act = jawaban[idx]==h?"active":"";
-      body+=`<div class="opt ${act}" onclick="pilihPG(${idx},'${h}',this)"><b>${h}.</b><div>${renderTeks(val)}</div></div>`;
+      let val = s[h]||""; let act = jawaban[idx]==h?"active":"";
+      body+=`<div class="opt ${act}" onclick="pilihPG(${idx},'${h}',this)"><b>${h}</b><div>${renderTeks(val)}</div></div>`;
     });
   }
   if(s.jenis=="pg_kompleks"){
     body+=`<p class="small">Centang jawaban yang benar, bisa lebih dari satu.</p>`;
     ["A","B","C","D"].forEach(h=>{
-      let val = s[h]||"";
-      let arr = jawaban[idx]||[]; let act = arr.includes(h)?"active":"";
+      let val = s[h]||""; let arr = jawaban[idx]||[]; let act = arr.includes(h)?"active":"";
       body+=`<label class="checkrow ${act}"><input type="checkbox" ${act?"checked":""} onchange="pilihKompleks(${idx},'${h}',this)"> <b>${h}.</b> <span>${renderTeks(val)}</span></label>`;
     });
   }
   if(s.jenis=="benar_salah"){
-    body+=`<p class="small">Pilih Benar / Salah untuk tiap pernyataan di soal.</p>
-    <div class="checkrow"><b>Pernyataan 1:</b> <select onchange="pilihBS(${idx},0,this.value)"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][0]=="S"?"selected":""}>S - Salah</option></select></div>
-    <div class="checkrow"><b>Pernyataan 2:</b> <select onchange="pilihBS(${idx},1,this.value)"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][1]=="S"?"selected":""}>S - Salah</option></select></div>
-    <p class="small">Kunci di Sheets contoh: B,S</p>`;
+    body+=`<p class="small">Pilih Benar / Salah untuk tiap pernyataan.</p>
+    <div class="checkrow"><b>1.</b> <select onchange="pilihBS(${idx},0,this.value)" style="margin:0"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][0]=="S"?"selected":""}>S - Salah</option></select></div>
+    <div class="checkrow"><b>2.</b> <select onchange="pilihBS(${idx},1,this.value)" style="margin:0"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][1]=="S"?"selected":""}>S - Salah</option></select></div>`;
   }
   if(s.jenis=="menjodohkan"){
-    body+=`<p class="small">Pilih pasangan yang tepat dari dropdown.</p>
-    <div class="checkrow"><b>1.</b> <select onchange="pilihJodoh(${idx},0,this.value)"><option value="">Pilih Pasangan</option><option value="A" ${jawaban[idx]&&jawaban[idx][0]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][0]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][0]=="D"?"selected":""}>D</option></select></div>
-    <div class="checkrow"><b>2.</b> <select onchange="pilihJodoh(${idx},1,this.value)"><option value="">Pilih Pasangan</option><option value="A" ${jawaban[idx]&&jawaban[idx][1]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][1]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][1]=="D"?"selected":""}>D</option></select></div>`;
-    ["A","B","C","D"].forEach(h=>{
-      let val = s[h]||"";
-      body+=`<div class="small"><b>${h}.</b> ${renderTeks(val)}</div>`;
-    });
+    body+=`<p class="small">Pilih pasangan yang tepat.</p>
+    <div class="checkrow"><b>1.</b> <select onchange="pilihJodoh(${idx},0,this.value)" style="margin:0"><option value="">Pilih</option><option value="A" ${jawaban[idx]&&jawaban[idx][0]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][0]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][0]=="D"?"selected":""}>D</option></select></div>
+    <div class="checkrow"><b>2.</b> <select onchange="pilihJodoh(${idx},1,this.value)" style="margin:0"><option value="">Pilih</option><option value="A" ${jawaban[idx]&&jawaban[idx][1]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][1]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][1]=="D"?"selected":""}>D</option></select></div>`;
+    ["A","B","C","D"].forEach(h=>{ body+=`<div class="small"><b>${h}.</b> ${renderTeks(s[h]||"")}</div>`; });
   }
-  if(s.jenis=="essay"){
-    body+=`<textarea rows="4" placeholder="Tulis jawabanmu..." oninput="jawaban[${idx}]=this.value">${jawaban[idx]||""}</textarea>`;
-  }
+  if(s.jenis=="essay"){ body+=`<textarea rows="4" placeholder="Tulis jawabanmu di sini..." oninput="jawaban[${idx}]=this.value">${jawaban[idx]||""}</textarea>`; }
   let nav = "";
-  if(idx>0) nav+=`<button onclick="renderSoal(${idx-1})" style="background:#666">⬅ SEBELUMNYA</button>`;
-  if(idx<list.length-1) nav+=`<button onclick="renderSoal(${idx+1})">SELANJUTNYA ➡</button>`;
-  else nav+=`<button onclick="kumpul()" style="background:#188038">KUMPULKAN JAWABAN</button>`;
+  if(idx>0) nav+=`<button class="btn-gray" onclick="renderSoal(${idx-1})">⬅ SEBELUMNYA</button>`;
+  if(idx<list.length-1) nav+=`<button class="btn-blue" onclick="renderSoal(${idx+1})">SELANJUTNYA ➜</button>`;
+  else nav+=`<button class="btn-green" onclick="kumpul()">✅ KUMPULKAN JAWABAN</button>`;
   document.getElementById("app").innerHTML = `
-  <div class="card"><span class="badge">${labelJenis} • ${s.bab||""}</span> <span class="small">Soal ${idx+1} / ${list.length}</span>
-  <h3>${renderTeks(s.pertanyaan)}</h3>${body}</div>
-  <div class="card">${nav}<p class="small">Jawaban tersimpan otomatis. Jangan refresh saat ujian.</p></div>`;
+  <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><span class="badge">${labelJenis}</span><span class="small">Soal ${idx+1} / ${list.length}</span></div><div class="progress"><div style="width:${persen}%"></div></div>
+  <p class="small">${s.bab||""} • ${mapelAktif}</p><h3 style="line-height:1.5">${renderTeks(s.pertanyaan)}</h3>${body}</div>
+  <div class="card">${nav}<p class="small" style="text-align:center">Jawaban tersimpan otomatis. Jangan refresh saat ujian.</p></div>`;
   window.scrollTo(0,0);
 }
 function pilihPG(i,h,el){ jawaban[i]=h; document.querySelectorAll(".opt").forEach(o=>o.classList.remove("active")); el.classList.add("active"); }
-function pilihKompleks(i,h,el){
-  if(!jawaban[i]) jawaban[i]=[];
-  if(el.checked){ if(!jawaban[i].includes(h)) jawaban[i].push(h); } else { jawaban[i]=jawaban[i].filter(x=>x!=h); }
-}
+function pilihKompleks(i,h,el){ if(!jawaban[i]) jawaban[i]=[]; if(el.checked){ if(!jawaban[i].includes(h)) jawaban[i].push(h); } else { jawaban[i]=jawaban[i].filter(x=>x!=h); } }
 function pilihBS(i,pos,val){ if(!jawaban[i]) jawaban[i]=[]; jawaban[i][pos]=val; }
 function pilihJodoh(i,pos,val){ if(!jawaban[i]) jawaban[i]=[]; jawaban[i][pos]=val; }
-
 function hitungNilai(){
   let list=window.listSoal; let benar=0, total=0, detail=[];
   list.forEach((s,idx)=>{
-    let bobot = parseFloat(s.bobot||10); total+=bobot;
-    let j = jawaban[idx]; let isBenar=false;
-    if(s.jenis=="pg"){
-      if(j && String(j).trim().toUpperCase()==String(s.kunci||"").trim().toUpperCase()) isBenar=true;
-    }
-    if(s.jenis=="pg_kompleks"){
-      let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).sort().join(",");
-      let jawab = (j||[]).slice().sort().join(",");
-      if(kunci && kunci==jawab) isBenar=true;
-    }
-    if(s.jenis=="benar_salah" || s.jenis=="menjodohkan"){
-      let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).join(",");
-      let jawab = (j||[]).join(",");
-      if(kunci && kunci==jawab) isBenar=true;
-    }
-    if(s.jenis=="essay"){ isBenar=false; }
-    if(isBenar) benar+=bobot;
-    detail.push({no:idx+1, jenis:s.jenis, jawaban: Array.isArray(j)?j.join(","): (j||""), kunci:s.kunci||"", benar:isBenar});
+    let bobot = parseFloat(s.bobot||10); total+=bobot; let j = jawaban[idx]; let isBenar=false;
+    if(s.jenis=="pg"){ if(j && String(j).trim().toUpperCase()==String(s.kunci||"").trim().toUpperCase()) isBenar=true; }
+    if(s.jenis=="pg_kompleks"){ let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).sort().join(","); let jawab = (j||[]).slice().sort().join(","); if(kunci && kunci==jawab) isBenar=true; }
+    if(s.jenis=="benar_salah" || s.jenis=="menjodohkan"){ let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).join(","); let jawab = (j||[]).join(","); if(kunci && kunci==jawab) isBenar=true; }
+    if(isBenar) benar+=bobot; detail.push({no:idx+1, jenis:s.jenis, jawaban: Array.isArray(j)?j.join(","): (j||""), kunci:s.kunci||"", benar:isBenar});
   });
   return {nilai: total>0?Math.round(benar/total*100):0, benar, total, detail};
 }
 async function kumpul(){
   if(!confirm("Kumpulkan jawaban?")) return;
   let h = hitungNilai();
-  document.getElementById("app").innerHTML=`<div class="card"><h3>Mengirim jawaban...</h3><p>Jangan tutup halaman ini.</p></div>`;
+  document.getElementById("app").innerHTML=`<div class="card" style="text-align:center"><div style="font-size:36px">⏳</div><h3>Mengirim jawaban...</h3><p class="small">Jangan tutup halaman ini.</p></div>`;
   for(let coba=1;coba<=3;coba++){
-    try{
-      let r=await fetch(API_URL, {method:"POST", body: JSON.stringify({action:"simpanNilai", nama:siswa.nama, kelas:siswa.kelas, mapel:mapelAktif, nilai:h.nilai, detail:JSON.stringify(h.detail)})});
-      let d=await r.json();
-      if(d.success) break;
-      if(coba==3) alert("Gagal simpan: "+(d.msg||""));
-    }catch(e){ if(coba==3) alert("Gagal simpan ke Apps Script. Hubungi guru. Error: "+e.message); else await new Promise(res=>setTimeout(res,1500)); }
+    try{ let r=await fetch(API_URL, {method:"POST", body: JSON.stringify({action:"simpanNilai", nama:siswa.nama, kelas:siswa.kelas, mapel:mapelAktif, nilai:h.nilai, detail:JSON.stringify(h.detail)})}); let d=await r.json(); if(d.success) break; if(coba==3) alert("Gagal simpan: "+(d.msg||"")); }catch(e){ if(coba==3) alert("Gagal simpan. Hubungi guru. Error: "+e.message); else await new Promise(res=>setTimeout(res,1500)); }
   }
-  document.getElementById("app").innerHTML=`<div class="card"><h2>✅ Ujian Selesai</h2><p>Nama: ${siswa.nama}</p><p>Kelas: ${siswa.kelas}</p><p>Mapel: ${mapelAktif}</p><h1>Nilai PG: ${h.nilai}</h1><p class="small">Soal Essay akan dinilai manual oleh guru.</p><button onclick="showLogin()">KEMBALI KE LOGIN</button></div>`;
+  document.getElementById("app").innerHTML=`<div class="card" style="text-align:center"><div style="font-size:48px">🎉</div><h2>Ujian Selesai!</h2><p>Nama: ${siswa.nama} • Kelas: ${siswa.kelas}<br>Mapel: ${mapelAktif}</p><div style="background:#dcfce7;border-radius:16px;padding:16px;margin:12px 0"><span class="small">Nilai Pilihan Ganda</span><h1 style="margin:4px 0;font-size:44px;color:#166534">${h.nilai}</h1><span class="small">Soal Essay dinilai manual oleh guru</span></div><button class="btn-blue" onclick="showLogin()">KEMBALI KE BERANDA</button></div>`;
 }
-
-// ===== PORTAL GURU - BISA EDIT JADWAL + SOAL =====
+// ===== PORTAL GURU ELEGAN =====
 async function showGuruPortal(){
-  document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru - ${guruNama}</h3><div class="card"><h3>Portal Guru - ${guruNama}</h3>
-<p class="small">Password saat ini tersimpan di HP / Laptop ini saja.</p>
-<div class="flex2">
-  <button onclick="gantiPassword()" style="background:#f9ab00">🔑 GANTI PASSWORD</button>
-  <button onclick="resetPassword()" style="background:#666">RESET KE 12345</button>
-</div>
-<p class="small">Password default awal: 12345</p><p class="small">Memuat data...</p></div>`;
-  try{
-    let r = await fetch(API_URL+"?action=getData"); let d = await r.json();
-    soalDB = d.soal||[]; jadwalDB = d.jadwal||[]; window.nilaiDB = d.nilai||[];
-  }catch(e){ window.nilaiDB = []; }
-  
+  document.getElementById("app").innerHTML = `<div class="card" style="text-align:center">⏳ Memuat Portal Guru...</div>`;
+  try{ let r = await fetch(API_URL+"?action=getData"); let d = await r.json(); soalDB = d.soal||[]; jadwalDB = d.jadwal||[]; window.nilaiDB = d.nilai||[]; }catch(e){ window.nilaiDB = []; }
   let nilaiDB = window.nilaiDB || [];
   let c7 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 7").length;
   let c8 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 8").length;
   let c9 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 9").length;
-
-  // --- Hitung Rekap ---
   let totalSiswa = nilaiDB.length;
   let rata = totalSiswa>0 ? Math.round(nilaiDB.reduce((a,b)=>a+Number(b.nilai||0),0)/totalSiswa) : 0;
   let lulus = nilaiDB.filter(x=>Number(x.nilai||0)>=70).length;
-
-  // --- Tabel Nilai untuk ditampilkan ---
   let htmlNilai = "";
   if(nilaiDB.length==0) htmlNilai = `<p class="small">Belum ada nilai masuk.</p>`;
-  else {
-    // Tampilkan 20 terakhir saja biar tidak berat
-    let tampil = nilaiDB.slice(-20).reverse();
-    tampil.forEach(v=>{
-      htmlNilai += `<div style="border-bottom:1px solid #eee;padding:8px 0;font-size:14px">
-      <b>${v.nama}</b> - ${v.kelas} - ${v.mapel}<br>
-      <span class="small">Benar: ${v.benar} | Salah: ${v.salah} | <b>Nilai: ${v.nilai}</b> | ${v.waktu}</span></div>`;
-    });
-  }
-
+  else { nilaiDB.slice(-20).reverse().forEach(v=>{ htmlNilai += `<div class="nilai-row"><b>${v.nama}</b> - ${v.kelas} - ${v.mapel}<br><span class="small">Benar: ${v.benar} | Salah: ${v.salah} | <b>Nilai: ${v.nilai}</b> | ${v.waktu}</span></div>`; }); }
   let htmlJadwal = "";
   if(jadwalDB.length==0) htmlJadwal = `<p class="small">Belum ada jadwal.</p>`;
-  jadwalDB.forEach((j,i)=>{
-    htmlJadwal += `<div style="border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0">
-    <b>${j.mapel}</b> - ${j.kelas} <br><span class="small">${j.tanggal} | ${j.jam} | ${j.durasi} menit | ${j.keterangan||""}</span><br>
-    <p class="small">Hapus: Buka Sheets > Tab Jadwal > Hapus baris ke-${i+2}</p></div>`;
-  });
-
+  jadwalDB.forEach((j,i)=>{ htmlJadwal += `<div style="border:1px solid #e2e8f0;border-radius:14px;padding:12px;margin:8px 0"><b>📚 ${j.mapel}</b> - ${j.kelas}<br><span class="small">${j.tanggal} | ${j.jam} | ${j.durasi} menit | ${j.keterangan||""}</span></div>`; });
   document.getElementById("app").innerHTML = `
-  <div class="card"><h3>Portal Guru - ${guruNama}</h3>
-  <p class="small">Soal: KELAS 7=${c7} | KELAS 8=${c8} | KELAS 9=${c9} | Total=${soalDB.length}</p>
-  <div class="flex2"><button onclick="showGuruPortal()" style="background:#666">REFRESH</button><button onclick="showLogin()" style="background:#666">KELUAR</button></div></div>
-
-  <!-- MENU REKAP NILAI - YANG HILANG KEMARIN -->
-  <div class="card" style="background:#e8f0fe"><h3>📊 Rekap Nilai</h3>
-  <p><b>Total yang sudah ujian: ${totalSiswa} siswa</b><br>
-  Rata-rata Nilai: <b>${rata}</b> | Lulus (>=70): <b>${lulus} siswa</b> | Belum Lulus: <b>${totalSiswa-lulus} siswa</b></p>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <select id="filterMapel" style="flex:1"><option value="">Semua Mapel</option><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
-    <select id="filterKelas" style="flex:1"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select>
-  </div>
-  <button onclick="filterNilai()" style="background:#188038">🔍 TAMPILKAN / FILTER</button>
-  <button onclick="downloadExcel()" style="background:#0d652d">⬇ DOWNLOAD REKAP EXCEL (CSV)</button>
-  <button onclick="copyRekap()" style="background:#f9ab00">📋 COPY UNTUK WA / EXCEL</button>
-  <p class="small">Download Excel akan mengunduh file .csv, bisa langsung dibuka di Excel / Google Sheets. Copy untuk WA bisa langsung paste ke grup WA.</p>
-  <div id="hasilFilter"></div>
-  <div id="listNilai"><h4>20 Nilai Terakhir:</h4>${htmlNilai}</div>
-  </div>
-
+  <div class="card"><div style="display:flex;align-items:center;gap:12px"><div style="width:48px;height:48px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">👩‍🏫</div><div><b style="font-size:17px">Halo, ${guruNama}</b><br><span class="small">Portal Guru • SMP NEGERI 2 PURWO</span></div></div>
+  <div class="flex2"><button class="btn-orange" onclick="gantiPassword()">🔑 GANTI PASSWORD</button><button class="btn-gray" onclick="showLogin()">KELUAR</button></div></div>
+  <div class="card"><h3>📊 Rekap Nilai</h3><div class="stat"><div><b>${totalSiswa}</b><span>Sudah Ujian</span></div><div><b>${rata}</b><span>Rata-rata</span></div><div><b>${lulus}</b><span>Lulus ≥70</span></div></div>
+  <div style="display:flex;gap:8px"><select id="filterMapel"><option value="">Semua Mapel</option><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select><select id="filterKelas"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select></div>
+  <button class="btn-green" onclick="filterNilai()">🔍 TAMPILKAN / FILTER</button>
+  <button class="btn-blue" onclick="downloadExcel()">⬇ DOWNLOAD REKAP EXCEL (.CSV)</button>
+  <button class="btn-orange" onclick="copyRekap()">📋 COPY UNTUK WA</button>
+  <div id="hasilFilter"></div><div id="listNilai"><h4>20 Nilai Terakhir:</h4>${htmlNilai}</div></div>
   <div class="card"><h3>📅 Tambah Jadwal Baru</h3>
   <select id="jMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
   <select id="jKelas"><option value="KELAS 7">KHUSUS KELAS 7 (7A+7B)</option><option value="KELAS 8">KHUSUS KELAS 8 (8A+8B)</option><option value="KELAS 9">KHUSUS KELAS 9 (9A+9B)</option><option value="SEMUA">SEMUA KELAS 7A-9B</option></select>
-  <input type="date" id="jTanggal" value="2026-11-17">
-  <input type="time" id="jJam" value="07:30">
-  <input type="number" id="jDurasi" value="60" placeholder="Durasi (menit)">
-  <input id="jKet" placeholder="Keterangan">
-  <button onclick="tambahJadwal()">+ TAMBAH JADWAL</button></div>
-
+  <input type="date" id="jTanggal" value="2026-11-17"><input type="time" id="jJam" value="07:30"><input type="number" id="jDurasi" value="60" placeholder="Durasi (menit)"><input id="jKet" placeholder="Keterangan">
+  <button class="btn-blue" onclick="tambahJadwal()">+ TAMBAH JADWAL</button></div>
   <div class="card"><h3>📋 Daftar Jadwal (${jadwalDB.length})</h3>${htmlJadwal}</div>
-
-  <div class="card"><h3>📝 Tambah Soal Cepat</h3>
+  <div class="card"><h3>📝 Tambah Soal Cepat</h3><p class="small">Soal: KELAS 7=${c7} | KELAS 8=${c8} | KELAS 9=${c9} | Total=${soalDB.length}</p>
   <select id="sMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
   <select id="sKelas"><option value="KELAS 7">KELAS 7</option><option value="KELAS 8">KELAS 8</option><option value="KELAS 9">KELAS 9</option><option value="SEMUA">SEMUA</option></select>
   <select id="sJenis"><option value="pg">Pilihan Ganda (pg)</option><option value="pg_kompleks">PG Kompleks</option><option value="benar_salah">Benar-Salah</option><option value="menjodohkan">Menjodohkan</option><option value="essay">Essay</option></select>
-  <input id="sBab" placeholder="Bab">
-  <textarea id="sTanya" rows="3" placeholder="Pertanyaan. Untuk gambar: [GAMBAR:ID_DRIVE]"></textarea>
-  <input id="sA" placeholder="Pilihan A - Bisa [GAMBAR:ID]">
-  <input id="sB" placeholder="Pilihan B">
-  <input id="sC" placeholder="Pilihan C">
-  <input id="sD" placeholder="Pilihan D">
-  <input id="sKunci" placeholder="Kunci - Contoh: B atau A,C atau B,S">
-  <button onclick="tambahSoal()">+ TAMBAH SOAL</button></div>
-  `;
+  <input id="sBab" placeholder="Bab - Contoh: Bilangan Bulat"><textarea id="sTanya" rows="3" placeholder="Pertanyaan. Untuk gambar: [GAMBAR:ID_DRIVE]"></textarea>
+  <input id="sA" placeholder="Pilihan A - Bisa [GAMBAR:ID]"><input id="sB" placeholder="Pilihan B"><input id="sC" placeholder="Pilihan C"><input id="sD" placeholder="Pilihan D"><input id="sKunci" placeholder="Kunci - Contoh: B atau A,C atau B,S">
+  <button class="btn-green" onclick="tambahSoal()">+ TAMBAH SOAL</button></div>`;
   window.scrollTo(0,0);
 }
-
-// ===== FUNGSI REKAP NILAI - BARU =====
-function getFilteredNilai(){
-  let m = document.getElementById("filterMapel")?.value || "";
-  let k = document.getElementById("filterKelas")?.value || "";
-  let data = (window.nilaiDB||[]).filter(x=>{
-    if(m && x.mapel!=m) return false;
-    if(k && x.kelas!=k) return false;
-    return true;
-  });
-  return data;
-}
-function filterNilai(){
-  let data = getFilteredNilai();
-  let h = `<h4>Hasil Filter: ${data.length} siswa</h4>`;
-  if(data.length==0) h += `<p class="small">Tidak ada data untuk filter ini.</p>`;
-  data.slice(-50).reverse().forEach(v=>{
-    h += `<div style="border-bottom:1px solid #eee;padding:6px 0;font-size:14px"><b>${v.nama}</b> - ${v.kelas} - ${v.mapel} | Benar:${v.benar} Salah:${v.salah} | <b>Nilai:${v.nilai}</b> | ${v.waktu}</div>`;
-  });
-  document.getElementById("hasilFilter").innerHTML = h;
-}
-function downloadExcel(){
-  let data = getFilteredNilai();
-  if(data.length==0 && (window.nilaiDB||[]).length>0){
-    data = window.nilaiDB;
-  }
-  if(data.length==0) return alert("Tidak ada data nilai! Klik TAMPILKAN / FILTER dulu, pastikan list siswa muncul.");
-
-  // CSV ASLI - pakai ; biar rapi di Excel Indonesia
-  let csv = "Nama;Kelas;Mapel;Benar;Salah;Nilai;Waktu\n";
-  data.forEach(v=>{
-    let nama = String(v.nama||"").replace(/;/g," ").replace(/\n/g," ");
-    let waktu = String(v.waktu||"").replace(/;/g," ");
-    csv += nama + ";" + v.kelas + ";" + v.mapel + ";" + v.benar + ";" + v.salah + ";" + v.nilai + ";" + waktu + "\n";
-  });
-
-  // Download sebagai .csv ASLI, bukan .xls palsu -> Tidak ada warning lagi
-  let blob = new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8;"});
-  let url = URL.createObjectURL(blob);
-  let link = document.createElement("a");
-  link.href = url;
-  let fMapel = document.getElementById("filterMapel")?.value || "SemuaMapel";
-  let fKelas = document.getElementById("filterKelas")?.value || "SemuaKelas";
-  link.download = "Rekap_Nilai_"+fMapel+"_"+fKelas+".csv";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-  alert("Berhasil! File .csv ter-download ("+data.length+" siswa). Buka dengan Excel, langsung rapi 7 kolom.");
-}
-function copyRekap(){
-  let data = getFilteredNilai();
-  if(data.length==0) return alert("Tidak ada data.");
-  let txt = "REKAP NILAI - "+(document.getElementById("filterMapel")?.value||"Semua Mapel")+" - "+(document.getElementById("filterKelas")?.value||"Semua Kelas")+"\\n";
-  txt += "Nama | Kelas | Mapel | Benar | Salah | Nilai\\n";
-  data.forEach(v=>{ txt += `${v.nama} | ${v.kelas} | ${v.mapel} | ${v.benar} | ${v.salah} | ${v.nilai}\\n`; });
-  navigator.clipboard.writeText(txt).then(()=>alert("Rekap berhasil di-copy! Tinggal paste ke WA / Excel."));
-}
-async function tambahJadwal(){
-  let data = {action:"addJadwal", mapel:document.getElementById("jMapel").value, kelas:document.getElementById("jKelas").value, tanggal:document.getElementById("jTanggal").value, jam:document.getElementById("jJam").value, durasi:document.getElementById("jDurasi").value, keterangan:document.getElementById("jKet").value};
-  if(!data.tanggal) return alert("Isi tanggal dulu!");
-  try{
-    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
-    if(d.success){ alert("Jadwal berhasil ditambah!"); showGuruPortal(); }
-    else { alert("Gagal: "+(d.msg||"Cek nama Sheet Jadwal")); showGuruPortal(); }
-  }catch(e){ alert("Gagal simpan ke Apps Script. Pastikan Apps Script sudah di-Deploy ulang dengan kode baru. Error: "+e.message); }
-}
-async function tambahSoal(){
-  let data = {action:"addSoal", mapel:document.getElementById("sMapel").value, kelas:document.getElementById("sKelas").value, jenis:document.getElementById("sJenis").value, bab:document.getElementById("sBab").value, pertanyaan:document.getElementById("sTanya").value, A:document.getElementById("sA").value, B:document.getElementById("sB").value, C:document.getElementById("sC").value, D:document.getElementById("sD").value, kunci:document.getElementById("sKunci").value, bobot:10, guru:guruNama};
-  if(!data.pertanyaan) return alert("Isi pertanyaan dulu!");
-  try{
-    let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json();
-    if(d.success){ alert("Soal berhasil ditambah!"); showGuruPortal(); }
-    else { alert("Gagal: "+(d.msg||"Cek nama Sheet Soal")); showGuruPortal(); }
-  }catch(e){ alert("Gagal simpan. Pastikan Apps Script sudah di-Deploy ulang. Error: "+e.message); }
-}
+function getFilteredNilai(){ let m = document.getElementById("filterMapel")?.value || ""; let k = document.getElementById("filterKelas")?.value || ""; return (window.nilaiDB||[]).filter(x=>{ if(m && x.mapel!=m) return false; if(k && x.kelas!=k) return false; return true; }); }
+function filterNilai(){ let data = getFilteredNilai(); let h = `<h4>Hasil Filter: ${data.length} siswa</h4>`; if(data.length==0) h += `<p class="small">Tidak ada data untuk filter ini.</p>`; data.slice(-50).reverse().forEach(v=>{ h += `<div class="nilai-row"><b>${v.nama}</b> - ${v.kelas} - ${v.mapel} | Benar:${v.benar} Salah:${v.salah} | <b>Nilai:${v.nilai}</b> | ${v.waktu}</div>`; }); document.getElementById("hasilFilter").innerHTML = h; }
+function downloadExcel(){ let data = getFilteredNilai(); if(data.length==0 && (window.nilaiDB||[]).length>0) data = window.nilaiDB; if(data.length==0) return alert("Tidak ada data nilai! Klik TAMPILKAN / FILTER dulu."); let csv = "Nama;Kelas;Mapel;Benar;Salah;Nilai;Waktu\n"; data.forEach(v=>{ let nama = String(v.nama||"").replace(/;/g," "); let waktu = String(v.waktu||"").replace(/;/g," "); csv += nama + ";" + v.kelas + ";" + v.mapel + ";" + v.benar + ";" + v.salah + ";" + v.nilai + ";" + waktu + "\n"; }); let blob = new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8;"}); let url = URL.createObjectURL(blob); let link = document.createElement("a"); link.href = url; let fMapel = document.getElementById("filterMapel")?.value || "SemuaMapel"; let fKelas = document.getElementById("filterKelas")?.value || "SemuaKelas"; link.download = "Rekap_Nilai_"+fMapel+"_"+fKelas+".csv"; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); alert("Berhasil! File .csv ter-download ("+data.length+" siswa)."); }
+function copyRekap(){ let data = getFilteredNilai(); if(data.length==0) return alert("Tidak ada data."); let txt = "REKAP NILAI - "+(document.getElementById("filterMapel")?.value||"Semua Mapel")+" - "+(document.getElementById("filterKelas")?.value||"Semua Kelas")+"\n"; txt += "Nama | Kelas | Mapel | Benar | Salah | Nilai\n"; data.forEach(v=>{ txt += `${v.nama} | ${v.kelas} | ${v.mapel} | ${v.benar} | ${v.salah} | ${v.nilai}\n`; }); navigator.clipboard.writeText(txt).then(()=>alert("Rekap berhasil di-copy!")); }
+async function tambahJadwal(){ let data = {action:"addJadwal", mapel:document.getElementById("jMapel").value, kelas:document.getElementById("jKelas").value, tanggal:document.getElementById("jTanggal").value, jam:document.getElementById("jJam").value, durasi:document.getElementById("jDurasi").value, keterangan:document.getElementById("jKet").value}; if(!data.tanggal) return alert("Isi tanggal dulu!"); try{ let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json(); if(d.success){ alert("Jadwal berhasil ditambah!"); showGuruPortal(); } else { alert("Gagal: "+(d.msg||"")); } }catch(e){ alert("Gagal simpan. Pastikan Apps Script sudah di-Deploy ulang. Error: "+e.message); } }
+async function tambahSoal(){ let data = {action:"addSoal", mapel:document.getElementById("sMapel").value, kelas:document.getElementById("sKelas").value, jenis:document.getElementById("sJenis").value, bab:document.getElementById("sBab").value, pertanyaan:document.getElementById("sTanya").value, A:document.getElementById("sA").value, B:document.getElementById("sB").value, C:document.getElementById("sC").value, D:document.getElementById("sD").value, kunci:document.getElementById("sKunci").value, bobot:10, guru:guruNama}; if(!data.pertanyaan) return alert("Isi pertanyaan dulu!"); try{ let r = await fetch(API_URL, {method:"POST", body:JSON.stringify(data)}); let d = await r.json(); if(d.success){ alert("Soal berhasil ditambah!"); showGuruPortal(); } else { alert("Gagal: "+(d.msg||"")); } }catch(e){ alert("Gagal simpan. Pastikan Apps Script sudah di-Deploy ulang. Error: "+e.message); } }
 showLogin();
 </script></body></html>
