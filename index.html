@@ -74,9 +74,28 @@ function masuk(){
 function masukGuru(){
   let p=document.getElementById("guruPass").value;
   let n=document.getElementById("guruNama").value.trim()||"Guru";
-  if(p!="12345") return alert("Password salah!");
+  // Password diambil dari yang disimpan guru, kalau belum pernah ganti, default 12345
+  let passTersimpan = localStorage.getItem("passGuru") || "12345";
+  if(p!=passTersimpan) return alert("Password salah! Password default awal adalah 12345");
   guruNama=n;
   showGuruPortal();
+}
+function gantiPassword(){
+  let lama = prompt("Masukkan Password Lama:");
+  if(!lama) return;
+  let passTersimpan = localStorage.getItem("passGuru") || "12345";
+  if(lama != passTersimpan) return alert("Password lama salah!");
+  let baru = prompt("Masukkan Password Baru (min 4 karakter):");
+  if(!baru || baru.length < 4) return alert("Password baru minimal 4 karakter!");
+  let konfirm = prompt("Ulangi Password Baru:");
+  if(baru != konfirm) return alert("Password baru tidak sama! Coba lagi.");
+  localStorage.setItem("passGuru", baru);
+  alert("Password berhasil diganti! Password baru: "+baru+"\nJangan lupa catat, besok login pakai password baru ini.");
+}
+function resetPassword(){
+  if(!confirm("Reset password ke 12345?")) return;
+  localStorage.removeItem("passGuru");
+  alert("Password direset ke 12345. Silakan login lagi.");
 }
 
 // ===== LOAD DATA =====
@@ -221,7 +240,13 @@ async function kumpul(){
 
 // ===== PORTAL GURU - BISA EDIT JADWAL + SOAL =====
 async function showGuruPortal(){
-  document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru - ${guruNama}</h3><p class="small">Memuat data...</p></div>`;
+  document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru - ${guruNama}</h3><div class="card"><h3>Portal Guru - ${guruNama}</h3>
+<p class="small">Password saat ini tersimpan di HP / Laptop ini saja.</p>
+<div class="flex2">
+  <button onclick="gantiPassword()" style="background:#f9ab00">🔑 GANTI PASSWORD</button>
+  <button onclick="resetPassword()" style="background:#666">RESET KE 12345</button>
+</div>
+<p class="small">Password default awal: 12345</p><p class="small">Memuat data...</p></div>`;
   try{
     let r = await fetch(API_URL+"?action=getData"); let d = await r.json();
     soalDB = d.soal||[]; jadwalDB = d.jadwal||[]; window.nilaiDB = d.nilai||[];
