@@ -21,7 +21,7 @@ button:disabled{background:#999}
 <div id="app"></div>
 <script>
 // ===== GANTI INI SAJA =====
-const API_URL = "https://script.google.com/macros/s/AKfycbyUcVHm-z4xAKwcdrSsw2uUlIChOjsCj9m0EST8nuQAMUfTgnfLXckKbf-hInFRZN7WIA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxSmRvL9hwuitmFgShmxX61vkVWei_pQhK9sXEWs8Ug9BeH2orBnxYOp3-NdYULXLy8PQ/exec";
 // ============================
 let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="", guruNama="Guru";
 
@@ -224,8 +224,32 @@ async function showGuruPortal(){
   document.getElementById("app").innerHTML = `<div class="card"><h3>Portal Guru - ${guruNama}</h3><p class="small">Memuat data...</p></div>`;
   try{
     let r = await fetch(API_URL+"?action=getData"); let d = await r.json();
-    soalDB = d.soal||[]; jadwalDB = d.jadwal||[];
-  }catch(e){}
+    soalDB = d.soal||[]; jadwalDB = d.jadwal||[]; window.nilaiDB = d.nilai||[];
+  }catch(e){ window.nilaiDB = []; }
+  
+  let nilaiDB = window.nilaiDB || [];
+  let c7 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 7").length;
+  let c8 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 8").length;
+  let c9 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 9").length;
+
+  // --- Hitung Rekap ---
+  let totalSiswa = nilaiDB.length;
+  let rata = totalSiswa>0 ? Math.round(nilaiDB.reduce((a,b)=>a+Number(b.nilai||0),0)/totalSiswa) : 0;
+  let lulus = nilaiDB.filter(x=>Number(x.nilai||0)>=70).length;
+
+  // --- Tabel Nilai untuk ditampilkan ---
+  let htmlNilai = "";
+  if(nilaiDB.length==0) htmlNilai = `<p class="small">Belum ada nilai masuk.</p>`;
+  else {
+    // Tampilkan 20 terakhir saja biar tidak berat
+    let tampil = nilaiDB.slice(-20).reverse();
+    tampil.forEach(v=>{
+      htmlNilai += `<div style="border-bottom:1px solid #eee;padding:8px 0;font-size:14px">
+      <b>${v.nama}</b> - ${v.kelas} - ${v.mapel}<br>
+      <span class="small">Benar: ${v.benar} | Salah: ${v.salah} | <b>Nilai: ${v.nilai}</b> | ${v.waktu}</span></div>`;
+    });
+  }
+
   let htmlJadwal = "";
   if(jadwalDB.length==0) htmlJadwal = `<p class="small">Belum ada jadwal.</p>`;
   jadwalDB.forEach((j,i)=>{
@@ -233,13 +257,27 @@ async function showGuruPortal(){
     <b>${j.mapel}</b> - ${j.kelas} <br><span class="small">${j.tanggal} | ${j.jam} | ${j.durasi} menit | ${j.keterangan||""}</span><br>
     <p class="small">Hapus: Buka Sheets > Tab Jadwal > Hapus baris ke-${i+2}</p></div>`;
   });
-  let c7 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 7").length;
-  let c8 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 8").length;
-  let c9 = soalDB.filter(s=>String(s.kelas).toUpperCase()=="KELAS 9").length;
+
   document.getElementById("app").innerHTML = `
   <div class="card"><h3>Portal Guru - ${guruNama}</h3>
-  <p class="small">Soal: KELAS 7 = ${c7} | KELAS 8 = ${c8} | KELAS 9 = ${c9} | Total = ${soalDB.length}</p>
-  <button onclick="showLogin()" style="background:#666">KELUAR / KE LOGIN SISWA</button></div>
+  <p class="small">Soal: KELAS 7=${c7} | KELAS 8=${c8} | KELAS 9=${c9} | Total=${soalDB.length}</p>
+  <div class="flex2"><button onclick="showGuruPortal()" style="background:#666">REFRESH</button><button onclick="showLogin()" style="background:#666">KELUAR</button></div></div>
+
+  <!-- MENU REKAP NILAI - YANG HILANG KEMARIN -->
+  <div class="card" style="background:#e8f0fe"><h3>📊 Rekap Nilai</h3>
+  <p><b>Total yang sudah ujian: ${totalSiswa} siswa</b><br>
+  Rata-rata Nilai: <b>${rata}</b> | Lulus (>=70): <b>${lulus} siswa</b> | Belum Lulus: <b>${totalSiswa-lulus} siswa</b></p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <select id="filterMapel" style="flex:1"><option value="">Semua Mapel</option><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
+    <select id="filterKelas" style="flex:1"><option value="">Semua Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select>
+  </div>
+  <button onclick="filterNilai()" style="background:#188038">🔍 TAMPILKAN / FILTER</button>
+  <button onclick="downloadExcel()" style="background:#0d652d">⬇ DOWNLOAD REKAP EXCEL (CSV)</button>
+  <button onclick="copyRekap()" style="background:#f9ab00">📋 COPY UNTUK WA / EXCEL</button>
+  <p class="small">Download Excel akan mengunduh file .csv, bisa langsung dibuka di Excel / Google Sheets. Copy untuk WA bisa langsung paste ke grup WA.</p>
+  <div id="hasilFilter"></div>
+  <div id="listNilai"><h4>20 Nilai Terakhir:</h4>${htmlNilai}</div>
+  </div>
 
   <div class="card"><h3>📅 Tambah Jadwal Baru</h3>
   <select id="jMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
@@ -247,9 +285,8 @@ async function showGuruPortal(){
   <input type="date" id="jTanggal" value="2026-11-17">
   <input type="time" id="jJam" value="07:30">
   <input type="number" id="jDurasi" value="60" placeholder="Durasi (menit)">
-  <input id="jKet" placeholder="Keterangan - Contoh: Ujian Matematika Kelas 7">
-  <button onclick="tambahJadwal()">+ TAMBAH JADWAL</button>
-  <p class="small">Untuk jadwal sama jamnya 3 kelas, tambah 3x: KELAS 7, KELAS 8, KELAS 9 dengan jam yang sama.</p></div>
+  <input id="jKet" placeholder="Keterangan">
+  <button onclick="tambahJadwal()">+ TAMBAH JADWAL</button></div>
 
   <div class="card"><h3>📋 Daftar Jadwal (${jadwalDB.length})</h3>${htmlJadwal}</div>
 
@@ -257,17 +294,61 @@ async function showGuruPortal(){
   <select id="sMapel"><option>Matematika</option><option>IPA</option><option>Bahasa Indonesia</option><option>IPS</option><option>Bahasa Inggris</option><option>PPKn</option></select>
   <select id="sKelas"><option value="KELAS 7">KELAS 7</option><option value="KELAS 8">KELAS 8</option><option value="KELAS 9">KELAS 9</option><option value="SEMUA">SEMUA</option></select>
   <select id="sJenis"><option value="pg">Pilihan Ganda (pg)</option><option value="pg_kompleks">PG Kompleks</option><option value="benar_salah">Benar-Salah</option><option value="menjodohkan">Menjodohkan</option><option value="essay">Essay</option></select>
-  <input id="sBab" placeholder="Bab - Contoh: Bilangan Bulat">
+  <input id="sBab" placeholder="Bab">
   <textarea id="sTanya" rows="3" placeholder="Pertanyaan. Untuk gambar: [GAMBAR:ID_DRIVE]"></textarea>
   <input id="sA" placeholder="Pilihan A - Bisa [GAMBAR:ID]">
   <input id="sB" placeholder="Pilihan B">
   <input id="sC" placeholder="Pilihan C">
   <input id="sD" placeholder="Pilihan D">
   <input id="sKunci" placeholder="Kunci - Contoh: B atau A,C atau B,S">
-  <button onclick="tambahSoal()">+ TAMBAH SOAL</button>
-  <p class="small">Soal yang ditambah di sini langsung masuk ke Sheets dan langsung bisa dikerjakan siswa.</p></div>
+  <button onclick="tambahSoal()">+ TAMBAH SOAL</button></div>
   `;
   window.scrollTo(0,0);
+}
+
+// ===== FUNGSI REKAP NILAI - BARU =====
+function getFilteredNilai(){
+  let m = document.getElementById("filterMapel")?.value || "";
+  let k = document.getElementById("filterKelas")?.value || "";
+  let data = (window.nilaiDB||[]).filter(x=>{
+    if(m && x.mapel!=m) return false;
+    if(k && x.kelas!=k) return false;
+    return true;
+  });
+  return data;
+}
+function filterNilai(){
+  let data = getFilteredNilai();
+  let h = `<h4>Hasil Filter: ${data.length} siswa</h4>`;
+  if(data.length==0) h += `<p class="small">Tidak ada data untuk filter ini.</p>`;
+  data.slice(-50).reverse().forEach(v=>{
+    h += `<div style="border-bottom:1px solid #eee;padding:6px 0;font-size:14px"><b>${v.nama}</b> - ${v.kelas} - ${v.mapel} | Benar:${v.benar} Salah:${v.salah} | <b>Nilai:${v.nilai}</b> | ${v.waktu}</div>`;
+  });
+  document.getElementById("hasilFilter").innerHTML = h;
+}
+function downloadExcel(){
+  let data = getFilteredNilai();
+  if(data.length==0) return alert("Tidak ada data untuk di-download. Ubah filter ke Semua Mapel / Semua Kelas dulu.");
+  let csv = "Nama,Kelas,Mapel,Benar,Salah,Nilai,Waktu\n";
+  data.forEach(v=>{
+    csv += `"${v.nama}","${v.kelas}","${v.mapel}",${v.benar},${v.salah},${v.nilai},"${v.waktu}"\n`;
+  });
+  let blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  let link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  let fMapel = document.getElementById("filterMapel")?.value || "SemuaMapel";
+  let fKelas = document.getElementById("filterKelas")?.value || "SemuaKelas";
+  link.download = "Rekap_Nilai_"+fMapel+"_"+fKelas+".csv";
+  link.click();
+  alert("File Excel (CSV) berhasil di-download! Buka di Excel / Google Sheets.");
+}
+function copyRekap(){
+  let data = getFilteredNilai();
+  if(data.length==0) return alert("Tidak ada data.");
+  let txt = "REKAP NILAI - "+(document.getElementById("filterMapel")?.value||"Semua Mapel")+" - "+(document.getElementById("filterKelas")?.value||"Semua Kelas")+"\\n";
+  txt += "Nama | Kelas | Mapel | Benar | Salah | Nilai\\n";
+  data.forEach(v=>{ txt += `${v.nama} | ${v.kelas} | ${v.mapel} | ${v.benar} | ${v.salah} | ${v.nilai}\\n`; });
+  navigator.clipboard.writeText(txt).then(()=>alert("Rekap berhasil di-copy! Tinggal paste ke WA / Excel."));
 }
 async function tambahJadwal(){
   let data = {action:"addJadwal", mapel:document.getElementById("jMapel").value, kelas:document.getElementById("jKelas").value, tanggal:document.getElementById("jTanggal").value, jam:document.getElementById("jJam").value, durasi:document.getElementById("jDurasi").value, keterangan:document.getElementById("jKet").value};
