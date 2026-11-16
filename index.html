@@ -37,7 +37,7 @@ button:active{transform:scale(.98)}
 <div class="top"><p>🏫 SMP NEGERI 2 PURWO</p><h1>Ujian Online</h1><p>Belajar • Ujian • Nilai Langsung</p></div>
 <div class="wrap"><div id="app"></div></div>
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxESxZqnlDl9oODifmmgZPy87DRFrA4QTR49rYSvR7AxV521ZuWUKfOMEXegMrJhmtqKQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzvDRT9NaWZYh7dHGPi5jkYZY8Vf9X28X4VMqWD6y5r9gOY7_ETXhNV2hhOtt8GhvHwaw/exec";
 let siswa={}, soalDB=[], jadwalDB=[], jawaban={}, mapelAktif="", kelasAktif="", guruNama="Guru";
 // ===== 2 LEVEL AKSES =====
 let params = new URLSearchParams(window.location.search);
@@ -219,8 +219,20 @@ async function mulaiUjian(mapel, kelasJadwal){
   let now = new Date();
   if(jadwal && jadwal.tanggal && jadwal.jam){
     let tglRaw = String(jadwal.tanggal||"").trim().substring(0,10);
-    let jamRaw = String(jadwal.jam||"").trim().substring(0,5).replace(".",":");
-    waktuMulaiUjian = new Date(tglRaw+"T"+jamRaw+":00");
+let jamRaw = "";
+let jamObj = jadwal.jam;
+// Kalau jam dari Sheets adalah Date (format Time)
+if(jamObj instanceof Date || (typeof jamObj === "string" && jamObj.includes("1899"))){
+  let dJam = new Date(jamObj);
+  jamRaw = String(dJam.getHours()).padStart(2,"0") + ":" + String(dJam.getMinutes()).padStart(2,"0");
+} else if(!isNaN(jamObj) && String(jamObj).includes(".")){
+  // Kalau jam dari Sheets adalah angka 0.3125
+  let totalMenit = Math.round(parseFloat(jamObj)*24*60);
+  jamRaw = String(Math.floor(totalMenit/60)).padStart(2,"0") + ":" + String(totalMenit%60).padStart(2,"0");
+} else {
+  jamRaw = String(jamObj||"").trim().substring(0,5).replace(".",":");
+}
+waktuMulaiUjian = new Date(tglRaw+"T"+jamRaw+":00");
     let durasi = parseInt(jadwal.durasi||60);
     if(isNaN(durasi)) durasi = 60;
     waktuSelesaiUjian = new Date(waktuMulaiUjian.getTime() + durasi*60*1000);
