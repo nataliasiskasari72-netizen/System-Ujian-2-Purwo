@@ -254,60 +254,55 @@ waktuMulaiUjian = new Date(tglRaw+"T"+jamRaw+":00");
   renderSoal(0);
 }
 function renderSoal(idx){
-  let list=window.listSoal; let s=list[idx];
-  let labelJenis = {pg:"Pilihan Ganda", pg_kompleks:"PG Kompleks", benar_salah:"Benar - Salah", menjodohkan:"Menjodohkan", essay:"Essay"}[s.jenis]||s.jenis;
-  let persen = Math.round((idx+1)/list.length*100);
-  let body="";
-  if(s.jenis=="pg"){
-    ["A","B","C","D"].forEach(h=>{
-      let val = s[h]||""; let act = jawaban[idx]==h?"active":"";
-      body+=`<div class="opt ${act}" onclick="pilihPG(${idx},'${h}',this)"><b>${h}</b><div>${renderTeks(val)}</div></div>`;
-    });
+  let list = window.listSoal || [];
+  if(list.length == 0){
+    document.getElementById("app").innerHTML = "<div class='card' style='text-align:center'><h3>Soal tidak ditemukan</h3><p>Mapel: " + mapelAktif + "</p><button class='btn-blue' onclick='showJadwal()'>KEMBALI KE JADWAL</button></div>";
+    return;
   }
-  if(s.jenis=="pg_kompleks"){
-    body+=`<p class="small">Centang jawaban yang benar, bisa lebih dari satu.</p>`;
-    ["A","B","C","D"].forEach(h=>{
-      let val = s[h]||""; let arr = jawaban[idx]||[]; let act = arr.includes(h)?"active":"";
-      body+=`<label class="checkrow ${act}"><input type="checkbox" ${act?"checked":""} onchange="pilihKompleks(${idx},'${h}',this)"> <b>${h}.</b> <span>${renderTeks(val)}</span></label>`;
-    });
-  }
-  if(s.jenis=="benar_salah"){
-    body+=`<p class="small">Pilih Benar / Salah untuk tiap pernyataan.</p>
-    <div class="checkrow"><b>1.</b> <select onchange="pilihBS(${idx},0,this.value)" style="margin:0"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][0]=="S"?"selected":""}>S - Salah</option></select></div>
-    <div class="checkrow"><b>2.</b> <select onchange="pilihBS(${idx},1,this.value)" style="margin:0"><option value="">Pilih</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B - Benar</option><option value="S" ${jawaban[idx]&&jawaban[idx][1]=="S"?"selected":""}>S - Salah</option></select></div>`;
-  }
-  if(s.jenis=="menjodohkan"){
-    body+=`<p class="small">Pilih pasangan yang tepat.</p>
-    <div class="checkrow"><b>1.</b> <select onchange="pilihJodoh(${idx},0,this.value)" style="margin:0"><option value="">Pilih</option><option value="A" ${jawaban[idx]&&jawaban[idx][0]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][0]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][0]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][0]=="D"?"selected":""}>D</option></select></div>
-    <div class="checkrow"><b>2.</b> <select onchange="pilihJodoh(${idx},1,this.value)" style="margin:0"><option value="">Pilih</option><option value="A" ${jawaban[idx]&&jawaban[idx][1]=="A"?"selected":""}>A</option><option value="B" ${jawaban[idx]&&jawaban[idx][1]=="B"?"selected":""}>B</option><option value="C" ${jawaban[idx]&&jawaban[idx][1]=="C"?"selected":""}>C</option><option value="D" ${jawaban[idx]&&jawaban[idx][1]=="D"?"selected":""}>D</option></select></div>`;
-    ["A","B","C","D"].forEach(h=>{ body+=`<div class="small"><b>${h}.</b> ${renderTeks(s[h]||"")}</div>`; });
-  }
-  if(s.jenis=="essay"){ body+=`<textarea rows="4" placeholder="Tulis jawabanmu di sini..." oninput="jawaban[${idx}]=this.value">${jawaban[idx]||""}</textarea>`; }
+  if(idx < 0) idx = 0;
+  if(idx >= list.length) idx = list.length - 1;
+  let s = list[idx];
+  let q = s.soal || s.pertanyaan || "(Soal kosong - cek Sheets kolom Soal)";
+  let optA = s.a || s.A || "-";
+  let optB = s.b || s.B || "-";
+  let optC = s.c || s.C || "-";
+  let optD = s.d || s.D || "-";
+  let pilih = jawaban[idx] || "";
+
   let nav = "";
-  if(idx>0) nav+=`<button class="btn-gray" onclick="renderSoal(${idx-1})">⬅ SEBELUMNYA</button>`;
-  if(idx<list.length-1) nav+=`<button class="btn-blue" onclick="renderSoal(${idx+1})">SELANJUTNYA ➜</button>`;
-else nav+=`<button id="btnKumpul" class="btn-green" onclick="kumpul()">✅ KUMPULKAN JAWABAN</button>`;
-  document.getElementById("app").innerHTML = `
-  <div class="card"><div id="infoWaktuKirim" class="small" style="text-align:center;background:#fefce8;padding:10px;border-radius:10px;margin-bottom:8px">⏰ Memuat jadwal kirim...</div>${nav}<p class="small" style="text-align:center">Jawaban tersimpan otomatis. Jangan pindah jendela / buka aplikasi lain. Pelanggaran ${pelanggaran}/2.</p></div>`;
-    if(timerInterval) clearInterval(timerInterval);
+  if(idx > 0) nav += "<button class='btn-blue' onclick='renderSoal(" + (idx-1) + ")'>⬅ SEBELUMNYA</button> ";
+  if(idx < list.length - 1) nav += "<button class='btn-blue' onclick='renderSoal(" + (idx+1) + ")'>SELANJUTNYA ➜</button>";
+  else nav += "<button id='btnKumpul' class='btn-green' onclick='kumpul()'>✅ KUMPULKAN JAWABAN</button>";
+
+  let html = "";
+  // TIMER DI ATAS - BIAR KELIHATAN
+  html += "<div class='card'><div id='infoWaktuKirim' class='small' style='text-align:center;background:#fefce8;padding:10px;border-radius:10px'>⏰ Memuat jadwal kirim...</div>";
+  html += "<p style='text-align:center;margin:6px 0 0 0'><b>Soal " + (idx+1) + " dari " + list.length + "</b> • " + mapelAktif + " • Sudah jawab: <b>" + Object.keys(jawaban||{}).length + "/" + list.length + "</b></p></div>";
+
+  // KARTU SOAL - INI YANG KEMARIN HILANG
+  html += "<div class='card'><p style='font-size:16px;font-weight:700;line-height:1.5'>" + (idx+1) + ". " + q + "</p>";
+  let opts = [["A",optA],["B",optB],["C",optC],["D",optD]];
+  for(let k=0;k<opts.length;k++){
+    let kode = opts[k][0]; let teks = opts[k][1];
+    let cek = (pilih==kode) ? "checked" : "";
+    let styleAktif = (pilih==kode) ? "background:#dbeafe;border:2px solid #2563eb;" : "background:#f8fafc;border:1px solid #e2e8f0;";
+    html += "<label style='display:block;padding:12px;margin:8px 0;border-radius:12px;cursor:pointer;" + styleAktif + "'><input type='radio' name='opt' value='" + kode + "' " + cek + " onchange='pilihJawaban(" + idx + ",this.value)' style='margin-right:8px'> <b>" + kode + ".</b> " + teks + "</label>";
+  }
+  html += "</div>";
+
+  // NAV BAWAH
+  html += "<div class='card' style='text-align:center'>" + nav + "<p class='small' style='margin-top:8px'>Jawaban tersimpan otomatis. Jangan pindah jendela / buka aplikasi lain. Pelanggaran " + pelanggaran + "/2.</p></div>";
+
+  document.getElementById("app").innerHTML = html;
+  if(timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(cekWaktuKirim, 1000);
   cekWaktuKirim();
   window.scrollTo(0,0);
 }
-function pilihPG(i,h,el){ jawaban[i]=h; document.querySelectorAll(".opt").forEach(o=>o.classList.remove("active")); el.classList.add("active"); }
-function pilihKompleks(i,h,el){ if(!jawaban[i]) jawaban[i]=[]; if(el.checked){ if(!jawaban[i].includes(h)) jawaban[i].push(h); } else { jawaban[i]=jawaban[i].filter(x=>x!=h); } }
-function pilihBS(i,pos,val){ if(!jawaban[i]) jawaban[i]=[]; jawaban[i][pos]=val; }
-function pilihJodoh(i,pos,val){ if(!jawaban[i]) jawaban[i]=[]; jawaban[i][pos]=val; }
-function hitungNilai(){
-  let list=window.listSoal; let benar=0, total=0, detail=[];
-  list.forEach((s,idx)=>{
-    let bobot = parseFloat(s.bobot||10); total+=bobot; let j = jawaban[idx]; let isBenar=false;
-    if(s.jenis=="pg"){ if(j && String(j).trim().toUpperCase()==String(s.kunci||"").trim().toUpperCase()) isBenar=true; }
-    if(s.jenis=="pg_kompleks"){ let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).sort().join(","); let jawab = (j||[]).slice().sort().join(","); if(kunci && kunci==jawab) isBenar=true; }
-    if(s.jenis=="benar_salah" || s.jenis=="menjodohkan"){ let kunci = String(s.kunci||"").split(",").map(x=>x.trim().toUpperCase()).join(","); let jawab = (j||[]).join(","); if(kunci && kunci==jawab) isBenar=true; }
-    if(isBenar) benar+=bobot; detail.push({no:idx+1, jenis:s.jenis, jawaban: Array.isArray(j)?j.join(","): (j||""), kunci:s.kunci||"", benar:isBenar});
-  });
-  return {nilai: total>0?Math.round(benar/total*100):0, benar, total, detail};
+
+function pilihJawaban(idx, val){
+  jawaban[idx] = val;
+  renderSoal(idx);
 }
 async function kumpul(otomatis=false){
   if(!otomatis && !confirm("Kumpulkan jawaban?")) return;
