@@ -313,10 +313,12 @@ async function kumpul(otomatis=false){
   if(!otomatis && !confirm("Kumpulkan jawaban?")) return;
   if(ujianTerkunci && !otomatis && pelanggaran>=3) return alert("Ujian sudah terkunci!");
   if(!otomatis){
-    let now = new Date();
-    let bukaKirim = new Date(waktuSelesaiUjian.getTime() - 10*60*1000);
-    if(now < bukaKirim) return alert("Tombol kirim belum aktif!\\n\\nTombol kirim hanya aktif 10 menit terakhir, yaitu jam "+bukaKirim.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})+" - "+waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})+".\\n\\nSilakan periksa lagi jawabanmu sambil menunggu.");
-  }
+  let now = new Date();
+  let bukaKirim = new Date(waktuSelesaiUjian.getTime() - 10*60*1000);
+  let totalSoal = window.listSoal ? window.listSoal.length : 0;
+  let sudahJawab = Object.keys(jawaban||{}).length;
+  if(now < bukaKirim && sudahJawab < totalSoal) return alert("Tombol kirim belum aktif!\\n\\nKamu baru jawab " + sudahJawab + "/" + totalSoal + " soal.\\nJawab semua dulu, atau tunggu sampai jam " + bukaKirim.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) + ".");
+}
   if(timerInterval) clearInterval(timerInterval);
   document.removeEventListener("visibilitychange", handlePindah);
   window.removeEventListener("blur", handlePindah);
