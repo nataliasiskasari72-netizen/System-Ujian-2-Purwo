@@ -159,19 +159,22 @@ function cekWaktuKirim(){
   }
   let bukaKirim = new Date(waktuSelesaiUjian.getTime() - 10*60*1000);
   let btn = document.getElementById("btnKumpul");
-  if(now < bukaKirim){
+  // CEK SUDAH JAWAB SEMUA ATAU BELUM
+  let totalSoal = window.listSoal ? window.listSoal.length : 0;
+  let sudahJawab = Object.keys(jawaban||{}).length;
+  let bolehKirimAwal = (totalSoal > 0 && sudahJawab >= totalSoal);
+  if(now < bukaKirim && !bolehKirimAwal){
     let sisaBuka = Math.floor((bukaKirim - now)/1000);
     let jam = Math.floor(sisaBuka/3600);
     let mnt = Math.floor((sisaBuka%3600)/60);
     let dtk = sisaBuka%60;
     if(btn){ btn.disabled = true; btn.style.opacity = "0.5"; btn.innerHTML = "🔒 TOMBOL KIRIM BUKA " + String(jam).padStart(2,"0") + ":" + String(mnt).padStart(2,"0") + ":" + String(dtk).padStart(2,"0") + " LAGI"; }
     let totalSisa = Math.floor(sisa/60);
-    let totalJam = Math.floor(totalSisa/60);
-    let totalMnt = totalSisa%60;
-    el.innerHTML = "⏰ Sisa ujian: <b>" + totalJam + " jam " + totalMnt + " menit</b> • Tombol KIRIM aktif 10 menit terakhir, yaitu jam <b>" + bukaKirim.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) + "</b> - <b>" + waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) + "</b>";
+    el.innerHTML = "⏰ Sisa ujian: <b>" + Math.floor(totalSisa/60) + " jam " + (totalSisa%60) + " menit</b> • Sudah jawab: <b>" + sudahJawab + "/" + totalSoal + "</b> • Tombol KIRIM aktif kalau sudah jawab semua, atau jam <b>" + bukaKirim.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) + "</b> - <b>" + waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) + "</b>";
   } else {
     if(btn){ btn.disabled = false; btn.style.opacity = "1"; btn.innerHTML = "✅ KUMPULKAN JAWABAN (Sisa " + Math.floor(sisa/60) + " menit)"; }
-    el.innerHTML = "<b style='color:#16a34a'>🟢 TOMBOL KIRIM SUDAH AKTIF! Segera kumpulkan sebelum jam " + waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) + "</b>";
+    if(bolehKirimAwal) el.innerHTML = "<b style='color:#16a34a'>🟢 KAMU SUDAH JAWAB SEMUA (" + sudahJawab + "/" + totalSoal + ") - Tombol KIRIM sudah aktif!</b>";
+    else el.innerHTML = "<b style='color:#16a34a'>🟢 TOMBOL KIRIM SUDAH AKTIF! Segera kumpulkan sebelum jam " + waktuSelesaiUjian.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}) + "</b>";
   }
 }
 function pasangAntiCurang(){
